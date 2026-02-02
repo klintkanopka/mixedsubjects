@@ -1,0 +1,658 @@
+---
+title: "Introduction to Mixed-Subjects Designs with the mixedsubjects Package"
+author: "Austin van Loon and Klint Kanopka"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Introduction to Mixed-Subjects Designs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Overview
+
+The `mixedsubjects` package provides tools for analyzing randomized experiments that combine traditional human subjects data with predictions from large language models (LLMs) or other machine learning algorithms. This approach, which we call a **Mixed-Subjects Design (MSD)**, can substantially increase the precision of treatment effect estimates while maintaining valid statistical inference.
+
+### Why Mixed-Subjects Designs?
+
+Running experiments with human subjects is expensive. A typical survey response might cost several dollars, and detecting small treatment effects often requires thousands of participants. Meanwhile, LLMs can generate predictions about how humans might respond to experimental treatments at a fraction of the cost---often less than a cent per prediction.
+
+The key insight behind mixed-subjects designs is that **LLM predictions, even if imperfect, contain information about human behavior**. By combining a smaller sample of actual human responses (the "gold standard") with a larger pool of LLM predictions, we can:
+
+1. **Reduce variance** in our treatment effect estimates
+2. **Maintain valid inference**---our confidence intervals will have correct coverage
+3. **Lower costs** of experimentation
+
+Importantly, this approach **does not assume LLM predictions are accurate**. Even if predictions are biased, the methods in this package automatically adjust for this bias using the human subjects data.
+
+### What This Package Does
+
+The `mixedsubjects` package implements seven estimators for the Average Treatment Effect (ATE) in mixed-subjects designs:
+
+| Estimator | Description | Predictions Needed |
+|-----------|-------------|-------------------|
+| **DiM** | Difference-in-Means | None |
+| **GREG** | Calibration estimator | 1 per unit |
+| **PPI++** | Power-tuned, single $\lambda$ | 1 per unit |
+| **D-T** | Doubly-tuned, arm-specific $\lambda$ | 1 per unit |
+| **DiP** | Difference-in-Predictions | 2 per unit |
+| **DiP++** | Power-tuned DiP | 2 per unit |
+| **D-T DiP** | Doubly-tuned DiP | 2 per unit |
+
+The package also helps you **design optimal experiments** by determining how to allocate your budget between human subjects and LLM predictions.
+
+## Installation
+
+```{r, eval=FALSE}
+# Install from local source
+devtools::install("path/to/mixedsubjects")
+
+# Or load for development
+devtools::load_all("path/to/mixedsubjects")
+```
+
+```{r load-package, echo=FALSE, message=FALSE}
+# For the vignette, we source the files directly
+pkg_dir <- system.file(package = "mixedsubjects")
+if (pkg_dir == "") {
+  # Running from source
+  pkg_dir <- "../R"
+  for (f in list.files(pkg_dir, pattern = "\\.R$", full.names = TRUE)) {
+    source(f)
+  }
+}
+```
+
+## A Quick Example
+
+Let's start with a simple example to see the package in action.
+
+### Simulating Experimental Data
+
+Imagine you're running a survey experiment to test whether a persuasive message changes attitudes. You have:
+
+- **200 human respondents** who completed the survey (100 treated, 100 control)
+- **1,000 LLM predictions** of how additional respondents would have answered
+
+```{r simulate-data}
+set.seed(123)
+
+# True treatment effect
+true_ate <- 0.3
+
+# Human subjects data (observed)
+n_observed <- 200
+observed_df <- data.frame(
+  # Treatment assignment (balanced)
+  D = rep(c(1, 0), each = n_observed / 2)
+)
+
+# Generate outcomes: Y(0) ~ N(0, 1), Y(1) ~ N(0.3, 1)
+observed_df$Y <- ifelse(
+  observed_df$D == 1,
+  rnorm(n_observed / 2, mean = true_ate, sd = 1),
+  rnorm(n_observed / 2, mean = 0, sd = 1)
+)
+
+# LLM predictions (correlated with true outcomes, but with some error)
+# S^(1) predicts Y(1), S^(0) predicts Y(0)
+observed_df$S1 <- 0.6 * observed_df$Y + rnorm(n_observed, 0, 0.5)
+observed_df$S0 <- 0.5 * observed_df$Y + rnorm(n_observed, 0, 0.6)
+
+# Unobserved units (only have predictions, no actual Y)
+n_unobserved <- 1000
+unobserved_df <- data.frame(
+  D = rep(c(1, 0), each = n_unobserved / 2),
+  S1 = rnorm(n_unobserved, mean = 0.15, sd = 0.7),
+  S0 = rnorm(n_unobserved, mean = 0, sd = 0.7)
+)
+# Add correlation between S1 and S0
+unobserved_df$S1 <- unobserved_df$S1 + 0.4 * unobserved_df$S0
+```
+
+### Creating an MSD Data Object
+
+First, we combine our data into an `msd_data` object:
+```{r create-msd-data}
+msd <- msd_data(observed = observed_df, unobserved = unobserved_df)
+print(msd)
+```
+
+### Estimating the Treatment Effect
+
+Now let's estimate the ATE using different estimators:
+
+```{r estimate-ate}
+# Classical difference-in-means (ignores predictions)
+result_dim <- msd_dim(msd)
+
+# D-T DiP (uses both predictions with arm-specific tuning)
+result_dt_dip <- msd_dt_dip(msd)
+
+# Compare
+cat("Difference-in-Means:\n")
+cat("  Estimate:", round(result_dim$estimate, 3), "\n")
+cat("  SE:", round(result_dim$se, 3), "\n")
+cat("  95% CI: [", round(result_dim$ci_lower, 3), ", ",
+    round(result_dim$ci_upper, 3), "]\n\n")
+
+cat("D-T DiP:\n")
+cat("  Estimate:", round(result_dt_dip$estimate, 3), "\n")
+cat("  SE:", round(result_dt_dip$se, 3), "\n")
+cat("  95% CI: [", round(result_dt_dip$ci_lower, 3), ", ",
+    round(result_dt_dip$ci_upper, 3), "]\n")
+```
+
+Notice that the D-T DiP estimator has a **smaller standard error** than difference-in-means, even though both use the same human subjects data. This variance reduction comes from leveraging the LLM predictions.
+
+## Understanding the Data Structure
+
+### What Data Do You Need?
+
+For a mixed-subjects design, you need:
+
+1. **Observed (labeled) data**: Human subjects who were randomized and provided actual responses
+   - `Y`: The outcome variable
+   - `D`: Treatment indicator (1 = treated, 0 = control)
+   - `S1` and/or `S0`: LLM predictions (optional for DiM)
+
+2. **Unobserved (unlabeled) data**: Units for which you only have LLM predictions
+   - `D`: Treatment indicator
+   - `S1` and/or `S0`: LLM predictions
+
+### Two Types of Predictions
+
+The package distinguishes between two prediction setups:
+
+**Setup 1: Arm-specific predictions (1 prediction per unit)**
+
+Each unit only has the prediction for their assigned treatment condition:
+- Treated units have $S^{(1)}$ (prediction of their outcome under treatment)
+- Control units have $S^{(0)}$ (prediction of their outcome under control)
+
+This is typical when you ask the LLM to predict each unit's response to their actual assigned condition.
+
+**Setup 2: Both predictions (2 predictions per unit)**
+
+Each unit has predictions for *both* conditions:
+- $S^{(1)}$: Prediction of outcome if treated
+- $S^{(0)}$: Prediction of outcome if in control
+
+This requires asking the LLM to predict each unit's response under both conditions, which doubles the prediction cost but enables the DiP family of estimators.
+
+### Creating Your Data Object
+
+The `msd_data()` function accepts data in two formats:
+
+**Option 1: Separate dataframes**
+```{r data-format-1, eval=FALSE}
+msd <- msd_data(
+  observed = observed_df,    # Must have Y, D, and optionally S0, S1
+  unobserved = unobserved_df # Must have D and S0, S1 (no Y)
+)
+```
+
+**Option 2: Combined dataframe**
+
+If your data is in a single dataframe where unobserved units have `Y = NA`:
+
+```{r data-format-2}
+# Combine into single dataframe
+combined_df <- rbind(
+  observed_df,
+  data.frame(Y = NA, D = unobserved_df$D,
+             S0 = unobserved_df$S0, S1 = unobserved_df$S1)
+)
+
+# Create msd_data object
+msd_combined <- msd_data(data = combined_df)
+print(msd_combined)
+```
+
+### Flexible Column Names
+
+The package automatically detects common column name patterns, so you don't need to rename your columns. For example:
+
+- **Outcome**: `Y`, `y`, `outcome`, `response`, `dependent`
+- **Treatment**: `D`, `d`, `treatment`, `treat`, `treated`, `T`, `W`
+- **Predictions**: `S0`, `s0`, `pred_control`, `prediction_0`, `yhat_0`, etc.
+
+If your column names don't match these patterns, you can specify them explicitly:
+
+```{r custom-columns, eval=FALSE}
+# Custom column names
+my_data <- data.frame(
+  response_var = rnorm(100),
+  is_treated = rep(c(1, 0), each = 50),
+  claude_pred_ctrl = rnorm(100),
+  claude_pred_trt = rnorm(100)
+)
+
+msd <- msd_data(
+  observed = my_data,
+  outcome = "response_var",
+  treatment = "is_treated",
+  pred_control = "claude_pred_ctrl",
+  pred_treated = "claude_pred_trt"
+)
+```
+
+You can even use different column names for observed and unobserved data:
+
+```{r different-columns, eval=FALSE}
+msd <- msd_data(
+  observed = obs_df,
+  unobserved = unobs_df,
+  obs_outcome = "Y",
+  obs_treatment = "treated",
+  obs_pred_control = "gpt_pred_0",
+  obs_pred_treated = "gpt_pred_1",
+  unobs_treatment = "D",
+  unobs_pred_control = "S0",
+  unobs_pred_treated = "S1"
+)
+```
+
+### Formula Interface
+
+For even more flexibility, you can use a formula interface directly in the estimator functions. This is similar to the syntax used by `ivreg` and other regression packages:
+
+```{r formula-example, eval=FALSE}
+# Formula: outcome ~ treatment | predictions
+# Using custom column names directly in the estimator
+
+# For GREG-type estimators (single prediction per arm)
+result <- msd_greg(response ~ treatment | pred_1 + pred_0,
+                   observed = obs_df, unobserved = unobs_df)
+
+# For DiP-type estimators (both predictions)
+result <- msd_dt_dip(Y ~ D | S1 + S0,
+                     observed = obs_df, unobserved = unobs_df)
+```
+
+The formula has three parts:
+1. **Left of `~`**: The outcome variable name
+2. **Between `~` and `|`**: The treatment indicator variable name
+3. **After `|`**: The prediction variable name(s)
+
+For DiM (which doesn't use predictions), you can omit the prediction part:
+
+```{r formula-dim, eval=FALSE}
+result <- msd_dim(response ~ treated, observed = obs_df)
+```
+
+## The Seven Estimators
+
+### 1. Difference-in-Means (DiM)
+
+The classical estimator that ignores LLM predictions entirely:
+
+$$\hat{\tau}^{DiM} = \bar{Y}_1 - \bar{Y}_0$$
+
+Use this as your baseline. It's unbiased and requires no predictions.
+
+```{r dim-example}
+result <- msd_dim(msd)
+print(result)
+```
+
+### 2. GREG (Calibration Estimator)
+
+GREG uses predictions to "calibrate" the estimate:
+
+$$\hat{\tau}^{GREG} = \left[\bar{S}^{(1)}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1})\right] - \left[\bar{S}^{(0)}_U + (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})\right]$$
+
+This adjusts the prediction mean by the observed "rectifier" (the average prediction error in the labeled data).
+
+```{r greg-example}
+result <- msd_greg(msd)
+print(result)
+```
+
+### 3. PPI++ (Power-Tuned)
+
+PPI++ improves on GREG by estimating an optimal tuning parameter $\lambda$:
+
+$$\hat{\mu}_d^{PPI}(\lambda) = \bar{Y}_d + \lambda(\bar{S}^{(d)}_U - \bar{S}^{(d)}_O)$$
+
+When $\lambda = 1$, this equals GREG. PPI++ estimates $\lambda$ to minimize variance using cross-fitting.
+
+```{r ppi-example}
+result <- msd_ppi(msd, n_folds = 2)
+print(result)
+```
+
+### 4. D-T (Doubly-Tuned)
+
+D-T uses separate tuning parameters for each arm ($\lambda_1$ for treatment, $\lambda_0$ for control):
+
+$$\hat{\tau}^{D-T} = \hat{\mu}_1^{PPI}(\lambda_1) - \hat{\mu}_0^{PPI}(\lambda_0)$$
+
+This is useful when prediction quality differs between treatment and control conditions.
+
+```{r dt-example}
+result <- msd_dt(msd, n_folds = 2)
+print(result)
+```
+
+### 5. DiP (Difference-in-Predictions)
+
+DiP uses the *contrast* $S^{(1)} - S^{(0)}$ for each unlabeled unit:
+
+$$\hat{\tau}^{DiP} = \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})$$
+
+**Key insight**: When $S^{(1)}$ and $S^{(0)}$ are positively correlated (which they often are---units that score high under treatment also tend to score high under control), the variance of their difference is smaller than the sum of their individual variances.
+
+```{r dip-example}
+result <- msd_dip(msd)
+print(result)
+```
+
+### 6. DiP++ (Power-Tuned DiP)
+
+DiP++ applies power-tuning to the DiP estimator with a single $\lambda$:
+
+$$\hat{\tau}^{DiP++}(\lambda) = \lambda \cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda\bar{S}^{(0)}_{O_0})$$
+
+```{r dip-pp-example}
+result <- msd_dip_pp(msd, n_folds = 2)
+print(result)
+```
+
+### 7. D-T DiP (Doubly-Tuned DiP)
+
+The most flexible estimator combines DiP with arm-specific tuning:
+
+$$\hat{\tau}^{D-T\ DiP} = \overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 - \lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda_0\bar{S}^{(0)}_{O_0})$$
+
+```{r dt-dip-example}
+result <- msd_dt_dip(msd, n_folds = 2)
+print(result)
+```
+
+### Comparing All Estimators
+
+Use `estimate_all()` to run all applicable estimators at once:
+
+```{r estimate-all}
+all_results <- estimate_all(msd)
+print(all_results)
+```
+
+## Choosing the Right Estimator
+
+### Decision Tree
+
+Here's a practical guide for choosing an estimator:
+
+```
+Do you have LLM predictions?
+├── No → Use DiM
+└── Yes → Do you have BOTH S^(1) and S^(0) for each unit?
+    ├── No (only arm-specific) →
+    │   └── Is prediction quality similar across arms?
+    │       ├── Yes → Use PPI++
+    │       └── No → Use D-T
+    └── Yes (both predictions) →
+        └── Are S^(1) and S^(0) positively correlated?
+            ├── Yes → Use D-T DiP (recommended)
+            └── No/Unsure → Use D-T
+```
+
+### When to Use DiP-Type Estimators
+
+The DiP family (DiP, DiP++, D-T DiP) is most beneficial when:
+
+1. **Predictions are positively correlated**: $Cov(S^{(1)}, S^{(0)}) > 0$
+2. **You can afford 2 predictions per unit**: This doubles the prediction cost
+
+You can check the correlation in your pilot data:
+
+```{r check-correlation}
+cor(unobserved_df$S1, unobserved_df$S0)
+```
+
+A positive correlation (which is common) means DiP estimators will likely outperform GREG-type estimators.
+
+## Variance Estimation
+
+### Delta-Method (Default)
+
+All estimators use the delta-method for variance estimation by default. This provides fast, analytical variance estimates based on the formulas derived in the accompanying paper.
+
+### Bootstrap (Optional)
+
+For robustness, you can also use the fold-respecting bootstrap:
+
+```{r bootstrap-example, cache=TRUE}
+# Bootstrap variance for D-T DiP
+boot_result <- bootstrap_variance(
+  msd,
+  estimator = "dt_dip",
+  n_bootstrap = 500,
+  seed = 42
+)
+
+cat("Delta-method SE:", round(result_dt_dip$se, 4), "\n")
+cat("Bootstrap SE:", round(boot_result$se, 4), "\n")
+```
+
+The bootstrap is computationally more expensive but provides a useful check on the delta-method variance.
+
+## Optimal Experimental Design
+
+### The Design Problem
+
+Before running your experiment, you need to decide:
+
+1. **How many human subjects** to recruit ($n_O$)
+2. **How many LLM predictions** to generate ($n_U$)
+3. **Which estimator** to use
+
+These decisions depend on:
+- Your **total budget**
+- The **cost per human subject**
+- The **cost per LLM prediction**
+- The **quality of predictions** (estimated from pilot data)
+
+### Using `optimal_design()`
+
+The `optimal_design()` function finds the allocation that minimizes expected variance given your budget constraints:
+
+```{r optimal-design}
+design <- optimal_design(
+  pilot_data = msd,          # Pilot study data
+  budget = 5000,             # Total budget in dollars
+  cost_human = 5,            # $5 per human response
+  cost_prediction = 0.01,    # $0.01 per LLM prediction
+  treatment_prob = 0.5       # Balanced treatment assignment
+)
+
+print(design)
+```
+
+### Interpreting the Results
+
+The output tells you:
+
+1. **Recommended estimator**: Which of the 7 estimators to use
+2. **Sample sizes**: How many observed and unobserved units
+3. **Expected SE**: The anticipated standard error
+
+### Comparing Designs
+
+The output also shows how different estimators perform at their optimal allocations. This helps you understand the trade-offs:
+
+- **DiM** uses all budget on human subjects (no predictions)
+- **GREG/PPI++/D-T** use 1 prediction per unlabeled unit
+- **DiP/DiP++/D-T DiP** use 2 predictions per unlabeled unit
+
+## Practical Workflow
+
+Here's a recommended workflow for using mixed-subjects designs in your research:
+
+### Step 1: Pilot Study
+
+Run a small pilot study with both human subjects and LLM predictions:
+
+```{r workflow-pilot, eval=FALSE}
+# Collect pilot data
+pilot_observed <- collect_human_responses(n = 100)
+pilot_observed$S1 <- get_llm_predictions(pilot_observed, condition = "treatment")
+pilot_observed$S0 <- get_llm_predictions(pilot_observed, condition = "control")
+
+pilot_unobserved <- generate_synthetic_units(n = 200)
+pilot_unobserved$S1 <- get_llm_predictions(pilot_unobserved, condition = "treatment")
+pilot_unobserved$S0 <- get_llm_predictions(pilot_unobserved, condition = "control")
+
+pilot_msd <- msd_data(observed = pilot_observed, unobserved = pilot_unobserved)
+```
+
+### Step 2: Estimate Prediction Quality
+
+Examine how well LLM predictions correlate with actual outcomes:
+
+```{r workflow-quality, eval=FALSE}
+# Check correlations
+pilot_results <- estimate_all(pilot_msd)
+print(pilot_results)
+
+# Compare to DiM baseline
+dim_se <- pilot_results$SE[pilot_results$Estimator == "Difference-in-Means (DiM)"]
+best_se <- min(pilot_results$SE)
+variance_reduction <- 1 - (best_se / dim_se)^2
+cat("Potential variance reduction:", round(variance_reduction * 100, 1), "%\n")
+```
+
+### Step 3: Plan Your Main Study
+
+Use the pilot data to design your main study:
+
+```{r workflow-design, eval=FALSE}
+design <- optimal_design(
+  pilot_data = pilot_msd,
+  budget = 10000,
+  cost_human = 5,
+  cost_prediction = 0.01
+)
+print(design)
+```
+
+### Step 4: Run the Main Study
+
+Collect data according to your design:
+
+```{r workflow-main, eval=FALSE}
+# Collect human responses
+main_observed <- collect_human_responses(n = design$optimal_n_obs)
+
+# Generate LLM predictions
+main_observed$S1 <- get_llm_predictions(main_observed, "treatment")
+main_observed$S0 <- get_llm_predictions(main_observed, "control")
+
+main_unobserved <- generate_synthetic_units(n = design$optimal_n_unobs)
+main_unobserved$S1 <- get_llm_predictions(main_unobserved, "treatment")
+main_unobserved$S0 <- get_llm_predictions(main_unobserved, "control")
+
+main_msd <- msd_data(observed = main_observed, unobserved = main_unobserved)
+```
+
+### Step 5: Analyze and Report
+
+Estimate the treatment effect using the recommended estimator:
+
+```{r workflow-analyze, eval=FALSE}
+# Run the recommended estimator
+result <- msd_dt_dip(main_msd)  # Or whichever was recommended
+print(result)
+
+# Optionally verify with bootstrap
+boot_result <- bootstrap_variance(main_msd, "dt_dip", n_bootstrap = 1000)
+```
+
+## Common Questions
+
+### Q: What if my LLM predictions are biased?
+
+**A**: That's fine! The MSD estimators are designed to be valid even when predictions are biased. The human subjects data is used to "rectify" any systematic bias in the predictions. You will still get unbiased estimates with valid confidence intervals.
+
+### Q: How much do predictions need to correlate with outcomes?
+
+**A**: Any positive correlation helps, but more is better. As a rough guide:
+- $\rho > 0.3$: Modest variance reduction
+- $\rho > 0.5$: Substantial variance reduction
+- $\rho > 0.7$: Large variance reduction
+
+You can estimate this correlation from your pilot data.
+
+### Q: Should I use cross-fitting?
+
+**A**: Yes, for the tuned estimators (PPI++, D-T, DiP++, D-T DiP). Cross-fitting ensures that the tuning parameters are estimated independently of the data used to compute the estimate, which prevents bias. The default `n_folds = 2` works well in most cases.
+
+### Q: What if predictions are worse in one treatment arm?
+
+**A**: Use the D-T or D-T DiP estimators. These use arm-specific tuning parameters ($\lambda_1$ and $\lambda_0$), which automatically adapt to different prediction quality across arms.
+
+### Q: How many folds should I use for cross-fitting?
+
+**A**: We recommend `n_folds = 2` for most applications. More folds use data more efficiently but increase computational cost. With 2 folds, half the labeled data is used to estimate tuning parameters and half for estimation in each fold.
+
+### Q: Can I use predictions from multiple LLMs?
+
+**A**: The current package supports one set of predictions. If you have multiple LLMs, you could:
+1. Use the single best-performing LLM
+2. Average predictions across LLMs before using them
+3. Use the LLM whose predictions have the highest correlation with outcomes
+
+## Technical Details
+
+### Assumptions
+
+The MSD estimators require:
+
+1. **Random sampling**: Both observed and unobserved units are drawn from the same population
+2. **Random treatment assignment**: Treatment is randomly assigned in both pools
+3. **Independent predictions**: The LLM predictions don't use the observed outcomes
+4. **Finite variances**: Standard regularity conditions
+
+### Variance Formulas
+
+For reference, the variance formulas for key estimators:
+
+**DiM**:
+$$Var(\hat{\tau}^{DiM}) = \frac{\sigma^2_{Y(1)}}{n_1} + \frac{\sigma^2_{Y(0)}}{n_0}$$
+
+**GREG**:
+$$Var(\hat{\tau}^{GREG}) = \sum_{d \in \{0,1\}} \left[\frac{\sigma^2_{S^{(d)}}}{m_d} + \frac{Var(Y(d) - S^{(d)})}{n_d}\right]$$
+
+**DiP**:
+$$Var(\hat{\tau}^{DiP}) = \frac{Var(S^{(1)} - S^{(0)})}{m} + \sum_{d \in \{0,1\}} \frac{Var(Y(d) - S^{(d)})}{n_d}$$
+
+The tuned estimators (PPI++, D-T, DiP++, D-T DiP) have more complex variance formulas that account for the estimation of tuning parameters.
+
+## Citation
+
+If you use this package in your research, please cite:
+
+```
+van Loon, A. and Kanopka, K. (2025). Causal Inference in Experiments with
+Mixed-Subjects Designs. R package version 0.1.0.
+```
+
+## Session Info
+
+```{r session-info}
+sessionInfo()
+```

@@ -1,0 +1,23 @@
+Package: mixedsubjects
+Title: Causal Inference in Experiments with Mixed-Subjects Designs
+Version: 0.1.0
+Authors@R: c(
+    person("Austin", "van Loon", email = "avanloon@mit.edu", role = c("aut", "cre")),
+    person("Klint", "Kanopka", role = "aut")
+  )
+Description: Implements seven estimators for average treatment effect (ATE)
+    estimation in mixed-subjects designs (MSDs), where human subjects data is
+    augmented with predictions from large language models (LLMs). Includes
+    Difference-in-Means, GREG, PPI++, Doubly-Tuned, Difference-in-Predictions
+    (DiP), DiP++, and D-T DiP estimators. Provides point estimates, variance
+    estimation via delta-method or bootstrap, and optimal design selection for
+    budget allocation between human observations and LLM predictions.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+Imports:
+    stats
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

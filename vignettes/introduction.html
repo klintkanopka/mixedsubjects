@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Austin van Loon and Klint Kanopka" />
+
+<meta name="date" content="2026-01-13" />
+
+<title>Introduction to Mixed-Subjects Designs with the mixedsubjects Package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to Mixed-Subjects Designs with
+the mixedsubjects Package</h1>
+<h4 class="author">Austin van Loon and Klint Kanopka</h4>
+<h4 class="date">2026-01-13</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#overview" id="toc-overview">Overview</a>
+<ul>
+<li><a href="#why-mixed-subjects-designs" id="toc-why-mixed-subjects-designs">Why Mixed-Subjects Designs?</a></li>
+<li><a href="#what-this-package-does" id="toc-what-this-package-does">What This Package Does</a></li>
+</ul></li>
+<li><a href="#installation" id="toc-installation">Installation</a></li>
+<li><a href="#a-quick-example" id="toc-a-quick-example">A Quick
+Example</a>
+<ul>
+<li><a href="#simulating-experimental-data" id="toc-simulating-experimental-data">Simulating Experimental
+Data</a></li>
+<li><a href="#creating-an-msd-data-object" id="toc-creating-an-msd-data-object">Creating an MSD Data
+Object</a></li>
+<li><a href="#estimating-the-treatment-effect" id="toc-estimating-the-treatment-effect">Estimating the Treatment
+Effect</a></li>
+</ul></li>
+<li><a href="#understanding-the-data-structure" id="toc-understanding-the-data-structure">Understanding the Data
+Structure</a>
+<ul>
+<li><a href="#what-data-do-you-need" id="toc-what-data-do-you-need">What
+Data Do You Need?</a></li>
+<li><a href="#two-types-of-predictions" id="toc-two-types-of-predictions">Two Types of Predictions</a></li>
+<li><a href="#creating-your-data-object" id="toc-creating-your-data-object">Creating Your Data Object</a></li>
+<li><a href="#flexible-column-names" id="toc-flexible-column-names">Flexible Column Names</a></li>
+<li><a href="#formula-interface" id="toc-formula-interface">Formula
+Interface</a></li>
+</ul></li>
+<li><a href="#the-seven-estimators" id="toc-the-seven-estimators">The
+Seven Estimators</a>
+<ul>
+<li><a href="#difference-in-means-dim" id="toc-difference-in-means-dim">1. Difference-in-Means (DiM)</a></li>
+<li><a href="#greg-calibration-estimator" id="toc-greg-calibration-estimator">2. GREG (Calibration
+Estimator)</a></li>
+<li><a href="#ppi-power-tuned" id="toc-ppi-power-tuned">3. PPI++
+(Power-Tuned)</a></li>
+<li><a href="#d-t-doubly-tuned" id="toc-d-t-doubly-tuned">4. D-T
+(Doubly-Tuned)</a></li>
+<li><a href="#dip-difference-in-predictions" id="toc-dip-difference-in-predictions">5. DiP
+(Difference-in-Predictions)</a></li>
+<li><a href="#dip-power-tuned-dip" id="toc-dip-power-tuned-dip">6. DiP++
+(Power-Tuned DiP)</a></li>
+<li><a href="#d-t-dip-doubly-tuned-dip" id="toc-d-t-dip-doubly-tuned-dip">7. D-T DiP (Doubly-Tuned DiP)</a></li>
+<li><a href="#comparing-all-estimators" id="toc-comparing-all-estimators">Comparing All Estimators</a></li>
+</ul></li>
+<li><a href="#choosing-the-right-estimator" id="toc-choosing-the-right-estimator">Choosing the Right Estimator</a>
+<ul>
+<li><a href="#decision-tree" id="toc-decision-tree">Decision
+Tree</a></li>
+<li><a href="#when-to-use-dip-type-estimators" id="toc-when-to-use-dip-type-estimators">When to Use DiP-Type
+Estimators</a></li>
+</ul></li>
+<li><a href="#variance-estimation" id="toc-variance-estimation">Variance
+Estimation</a>
+<ul>
+<li><a href="#delta-method-default" id="toc-delta-method-default">Delta-Method (Default)</a></li>
+<li><a href="#bootstrap-optional" id="toc-bootstrap-optional">Bootstrap
+(Optional)</a></li>
+</ul></li>
+<li><a href="#optimal-experimental-design" id="toc-optimal-experimental-design">Optimal Experimental Design</a>
+<ul>
+<li><a href="#the-design-problem" id="toc-the-design-problem">The Design
+Problem</a></li>
+<li><a href="#using-optimal_design" id="toc-using-optimal_design">Using
+<code>optimal_design()</code></a></li>
+<li><a href="#interpreting-the-results" id="toc-interpreting-the-results">Interpreting the Results</a></li>
+<li><a href="#comparing-designs" id="toc-comparing-designs">Comparing
+Designs</a></li>
+</ul></li>
+<li><a href="#practical-workflow" id="toc-practical-workflow">Practical
+Workflow</a>
+<ul>
+<li><a href="#step-1-pilot-study" id="toc-step-1-pilot-study">Step 1:
+Pilot Study</a></li>
+<li><a href="#step-2-estimate-prediction-quality" id="toc-step-2-estimate-prediction-quality">Step 2: Estimate Prediction
+Quality</a></li>
+<li><a href="#step-3-plan-your-main-study" id="toc-step-3-plan-your-main-study">Step 3: Plan Your Main
+Study</a></li>
+<li><a href="#step-4-run-the-main-study" id="toc-step-4-run-the-main-study">Step 4: Run the Main Study</a></li>
+<li><a href="#step-5-analyze-and-report" id="toc-step-5-analyze-and-report">Step 5: Analyze and Report</a></li>
+</ul></li>
+<li><a href="#common-questions" id="toc-common-questions">Common
+Questions</a>
+<ul>
+<li><a href="#q-what-if-my-llm-predictions-are-biased" id="toc-q-what-if-my-llm-predictions-are-biased">Q: What if my LLM
+predictions are biased?</a></li>
+<li><a href="#q-how-much-do-predictions-need-to-correlate-with-outcomes" id="toc-q-how-much-do-predictions-need-to-correlate-with-outcomes">Q:
+How much do predictions need to correlate with outcomes?</a></li>
+<li><a href="#q-should-i-use-cross-fitting" id="toc-q-should-i-use-cross-fitting">Q: Should I use
+cross-fitting?</a></li>
+<li><a href="#q-what-if-predictions-are-worse-in-one-treatment-arm" id="toc-q-what-if-predictions-are-worse-in-one-treatment-arm">Q: What if
+predictions are worse in one treatment arm?</a></li>
+<li><a href="#q-how-many-folds-should-i-use-for-cross-fitting" id="toc-q-how-many-folds-should-i-use-for-cross-fitting">Q: How many
+folds should I use for cross-fitting?</a></li>
+<li><a href="#q-can-i-use-predictions-from-multiple-llms" id="toc-q-can-i-use-predictions-from-multiple-llms">Q: Can I use
+predictions from multiple LLMs?</a></li>
+</ul></li>
+<li><a href="#technical-details" id="toc-technical-details">Technical
+Details</a>
+<ul>
+<li><a href="#assumptions" id="toc-assumptions">Assumptions</a></li>
+<li><a href="#variance-formulas" id="toc-variance-formulas">Variance
+Formulas</a></li>
+</ul></li>
+<li><a href="#citation" id="toc-citation">Citation</a></li>
+<li><a href="#session-info" id="toc-session-info">Session Info</a></li>
+</ul>
+</div>
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>The <code>mixedsubjects</code> package provides tools for analyzing
+randomized experiments that combine traditional human subjects data with
+predictions from large language models (LLMs) or other machine learning
+algorithms. This approach, which we call a <strong>Mixed-Subjects Design
+(MSD)</strong>, can substantially increase the precision of treatment
+effect estimates while maintaining valid statistical inference.</p>
+<div id="why-mixed-subjects-designs" class="section level3">
+<h3>Why Mixed-Subjects Designs?</h3>
+<p>Running experiments with human subjects is expensive. A typical
+survey response might cost several dollars, and detecting small
+treatment effects often requires thousands of participants. Meanwhile,
+LLMs can generate predictions about how humans might respond to
+experimental treatments at a fraction of the cost—often less than a cent
+per prediction.</p>
+<p>The key insight behind mixed-subjects designs is that <strong>LLM
+predictions, even if imperfect, contain information about human
+behavior</strong>. By combining a smaller sample of actual human
+responses (the “gold standard”) with a larger pool of LLM predictions,
+we can:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Reduce variance</strong> in our treatment effect
+estimates</li>
+<li><strong>Maintain valid inference</strong>—our confidence intervals
+will have correct coverage</li>
+<li><strong>Lower costs</strong> of experimentation</li>
+</ol>
+<p>Importantly, this approach <strong>does not assume LLM predictions
+are accurate</strong>. Even if predictions are biased, the methods in
+this package automatically adjust for this bias using the human subjects
+data.</p>
+</div>
+<div id="what-this-package-does" class="section level3">
+<h3>What This Package Does</h3>
+<p>The <code>mixedsubjects</code> package implements seven estimators
+for the Average Treatment Effect (ATE) in mixed-subjects designs:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Estimator</th>
+<th>Description</th>
+<th>Predictions Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DiM</strong></td>
+<td>Difference-in-Means</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><strong>GREG</strong></td>
+<td>Calibration estimator</td>
+<td>1 per unit</td>
+</tr>
+<tr class="odd">
+<td><strong>PPI++</strong></td>
+<td>Power-tuned, single <span class="math inline">\(\lambda\)</span></td>
+<td>1 per unit</td>
+</tr>
+<tr class="even">
+<td><strong>D-T</strong></td>
+<td>Doubly-tuned, arm-specific <span class="math inline">\(\lambda\)</span></td>
+<td>1 per unit</td>
+</tr>
+<tr class="odd">
+<td><strong>DiP</strong></td>
+<td>Difference-in-Predictions</td>
+<td>2 per unit</td>
+</tr>
+<tr class="even">
+<td><strong>DiP++</strong></td>
+<td>Power-tuned DiP</td>
+<td>2 per unit</td>
+</tr>
+<tr class="odd">
+<td><strong>D-T DiP</strong></td>
+<td>Doubly-tuned DiP</td>
+<td>2 per unit</td>
+</tr>
+</tbody>
+</table>
+<p>The package also helps you <strong>design optimal
+experiments</strong> by determining how to allocate your budget between
+human subjects and LLM predictions.</p>
+</div>
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Install from local source</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;path/to/mixedsubjects&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Or load for development</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>(<span class="st">&quot;path/to/mixedsubjects&quot;</span>)</span></code></pre></div>
+</div>
+<div id="a-quick-example" class="section level2">
+<h2>A Quick Example</h2>
+<p>Let’s start with a simple example to see the package in action.</p>
+<div id="simulating-experimental-data" class="section level3">
+<h3>Simulating Experimental Data</h3>
+<p>Imagine you’re running a survey experiment to test whether a
+persuasive message changes attitudes. You have:</p>
+<ul>
+<li><strong>200 human respondents</strong> who completed the survey (100
+treated, 100 control)</li>
+<li><strong>1,000 LLM predictions</strong> of how additional respondents
+would have answered</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># True treatment effect</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>true_ate <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># Human subjects data (observed)</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>n_observed <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>observed_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Treatment assignment (balanced)</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">D =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">each =</span> n_observed <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># Generate outcomes: Y(0) ~ N(0, 1), Y(1) ~ N(0.3, 1)</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>observed_df<span class="sc">$</span>Y <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  observed_df<span class="sc">$</span>D <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="fu">rnorm</span>(n_observed <span class="sc">/</span> <span class="dv">2</span>, <span class="at">mean =</span> true_ate, <span class="at">sd =</span> <span class="dv">1</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="fu">rnorm</span>(n_observed <span class="sc">/</span> <span class="dv">2</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co"># LLM predictions (correlated with true outcomes, but with some error)</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co"># S^(1) predicts Y(1), S^(0) predicts Y(0)</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>observed_df<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> observed_df<span class="sc">$</span>Y <span class="sc">+</span> <span class="fu">rnorm</span>(n_observed, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>observed_df<span class="sc">$</span>S0 <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> observed_df<span class="sc">$</span>Y <span class="sc">+</span> <span class="fu">rnorm</span>(n_observed, <span class="dv">0</span>, <span class="fl">0.6</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co"># Unobserved units (only have predictions, no actual Y)</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>n_unobserved <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>unobserved_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="at">D =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">each =</span> n_unobserved <span class="sc">/</span> <span class="dv">2</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  <span class="at">S1 =</span> <span class="fu">rnorm</span>(n_unobserved, <span class="at">mean =</span> <span class="fl">0.15</span>, <span class="at">sd =</span> <span class="fl">0.7</span>),</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="at">S0 =</span> <span class="fu">rnorm</span>(n_unobserved, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.7</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>)</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co"># Add correlation between S1 and S0</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>unobserved_df<span class="sc">$</span>S1 <span class="ot">&lt;-</span> unobserved_df<span class="sc">$</span>S1 <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> unobserved_df<span class="sc">$</span>S0</span></code></pre></div>
+</div>
+<div id="creating-an-msd-data-object" class="section level3">
+<h3>Creating an MSD Data Object</h3>
+<p>First, we combine our data into an <code>msd_data</code> object:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(<span class="at">observed =</span> observed_df, <span class="at">unobserved =</span> unobserved_df)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">print</span>(msd)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Data</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; ==========================</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   Observed (labeled):     200 </span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;     - Treated (D=1):      100 </span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;     - Control (D=0):      100 </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   Unobserved (unlabeled): 1000 </span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; Predictions Available:</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   S0 (control arm):   Yes </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;   S1 (treatment arm): Yes </span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; Column Mapping (original names):</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;   Observed:  Y=Y, D=D, S0=S0, S1=S1</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;   Unobserved: D=D, S0=S0, S1=S1</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; Available Estimators:</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;   - DiM:     Yes (no predictions needed)</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt;   - GREG:    Yes</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;   - PPI++:   Yes</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;   - D-T:     Yes</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt;   - DiP:     Yes (both S0 and S1 available)</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;   - DiP++:   Yes</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;   - D-T DiP: Yes</span></span></code></pre></div>
+</div>
+<div id="estimating-the-treatment-effect" class="section level3">
+<h3>Estimating the Treatment Effect</h3>
+<p>Now let’s estimate the ATE using different estimators:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Classical difference-in-means (ignores predictions)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>result_dim <span class="ot">&lt;-</span> <span class="fu">msd_dim</span>(msd)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># D-T DiP (uses both predictions with arm-specific tuning)</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>result_dt_dip <span class="ot">&lt;-</span> <span class="fu">msd_dt_dip</span>(msd)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co"># Compare</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Difference-in-Means:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; Difference-in-Means:</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Estimate:&quot;</span>, <span class="fu">round</span>(result_dim<span class="sc">$</span>estimate, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;   Estimate: 0.498</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  SE:&quot;</span>, <span class="fu">round</span>(result_dim<span class="sc">$</span>se, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;   SE: 0.133</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  95% CI: [&quot;</span>, <span class="fu">round</span>(result_dim<span class="sc">$</span>ci_lower, <span class="dv">3</span>), <span class="st">&quot;, &quot;</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>    <span class="fu">round</span>(result_dim<span class="sc">$</span>ci_upper, <span class="dv">3</span>), <span class="st">&quot;]</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;   95% CI: [ 0.237 ,  0.759 ]</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;D-T DiP:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; D-T DiP:</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Estimate:&quot;</span>, <span class="fu">round</span>(result_dt_dip<span class="sc">$</span>estimate, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;   Estimate: 0.31</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  SE:&quot;</span>, <span class="fu">round</span>(result_dt_dip<span class="sc">$</span>se, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;   SE: 0.096</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  95% CI: [&quot;</span>, <span class="fu">round</span>(result_dt_dip<span class="sc">$</span>ci_lower, <span class="dv">3</span>), <span class="st">&quot;, &quot;</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>    <span class="fu">round</span>(result_dt_dip<span class="sc">$</span>ci_upper, <span class="dv">3</span>), <span class="st">&quot;]</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt;   95% CI: [ 0.122 ,  0.499 ]</span></span></code></pre></div>
+<p>Notice that the D-T DiP estimator has a <strong>smaller standard
+error</strong> than difference-in-means, even though both use the same
+human subjects data. This variance reduction comes from leveraging the
+LLM predictions.</p>
+</div>
+</div>
+<div id="understanding-the-data-structure" class="section level2">
+<h2>Understanding the Data Structure</h2>
+<div id="what-data-do-you-need" class="section level3">
+<h3>What Data Do You Need?</h3>
+<p>For a mixed-subjects design, you need:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Observed (labeled) data</strong>: Human subjects who were
+randomized and provided actual responses
+<ul>
+<li><code>Y</code>: The outcome variable</li>
+<li><code>D</code>: Treatment indicator (1 = treated, 0 = control)</li>
+<li><code>S1</code> and/or <code>S0</code>: LLM predictions (optional
+for DiM)</li>
+</ul></li>
+<li><strong>Unobserved (unlabeled) data</strong>: Units for which you
+only have LLM predictions
+<ul>
+<li><code>D</code>: Treatment indicator</li>
+<li><code>S1</code> and/or <code>S0</code>: LLM predictions</li>
+</ul></li>
+</ol>
+</div>
+<div id="two-types-of-predictions" class="section level3">
+<h3>Two Types of Predictions</h3>
+<p>The package distinguishes between two prediction setups:</p>
+<p><strong>Setup 1: Arm-specific predictions (1 prediction per
+unit)</strong></p>
+<p>Each unit only has the prediction for their assigned treatment
+condition: - Treated units have <span class="math inline">\(S^{(1)}\)</span> (prediction of their outcome
+under treatment) - Control units have <span class="math inline">\(S^{(0)}\)</span> (prediction of their outcome
+under control)</p>
+<p>This is typical when you ask the LLM to predict each unit’s response
+to their actual assigned condition.</p>
+<p><strong>Setup 2: Both predictions (2 predictions per
+unit)</strong></p>
+<p>Each unit has predictions for <em>both</em> conditions: - <span class="math inline">\(S^{(1)}\)</span>: Prediction of outcome if treated
+- <span class="math inline">\(S^{(0)}\)</span>: Prediction of outcome if
+in control</p>
+<p>This requires asking the LLM to predict each unit’s response under
+both conditions, which doubles the prediction cost but enables the DiP
+family of estimators.</p>
+</div>
+<div id="creating-your-data-object" class="section level3">
+<h3>Creating Your Data Object</h3>
+<p>The <code>msd_data()</code> function accepts data in two formats:</p>
+<p><strong>Option 1: Separate dataframes</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">observed =</span> observed_df,    <span class="co"># Must have Y, D, and optionally S0, S1</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">unobserved =</span> unobserved_df <span class="co"># Must have D and S0, S1 (no Y)</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>Option 2: Combined dataframe</strong></p>
+<p>If your data is in a single dataframe where unobserved units have
+<code>Y = NA</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Combine into single dataframe</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>combined_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  observed_df,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">Y =</span> <span class="cn">NA</span>, <span class="at">D =</span> unobserved_df<span class="sc">$</span>D,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>             <span class="at">S0 =</span> unobserved_df<span class="sc">$</span>S0, <span class="at">S1 =</span> unobserved_df<span class="sc">$</span>S1)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co"># Create msd_data object</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>msd_combined <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(<span class="at">data =</span> combined_df)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fu">print</span>(msd_combined)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Data</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; ==========================</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;   Observed (labeled):     200 </span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;     - Treated (D=1):      100 </span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;     - Control (D=0):      100 </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;   Unobserved (unlabeled): 1000 </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; Predictions Available:</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;   S0 (control arm):   Yes </span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt;   S1 (treatment arm): Yes </span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; Column Mapping (original names):</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;   Observed:  Y=Y, D=D, S0=S0, S1=S1</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;   Unobserved: D=D, S0=S0, S1=S1</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; Available Estimators:</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt;   - DiM:     Yes (no predictions needed)</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;   - GREG:    Yes</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt;   - PPI++:   Yes</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt;   - D-T:     Yes</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt;   - DiP:     Yes (both S0 and S1 available)</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt;   - DiP++:   Yes</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;   - D-T DiP: Yes</span></span></code></pre></div>
+</div>
+<div id="flexible-column-names" class="section level3">
+<h3>Flexible Column Names</h3>
+<p>The package automatically detects common column name patterns, so you
+don’t need to rename your columns. For example:</p>
+<ul>
+<li><strong>Outcome</strong>: <code>Y</code>, <code>y</code>,
+<code>outcome</code>, <code>response</code>, <code>dependent</code></li>
+<li><strong>Treatment</strong>: <code>D</code>, <code>d</code>,
+<code>treatment</code>, <code>treat</code>, <code>treated</code>,
+<code>T</code>, <code>W</code></li>
+<li><strong>Predictions</strong>: <code>S0</code>, <code>s0</code>,
+<code>pred_control</code>, <code>prediction_0</code>,
+<code>yhat_0</code>, etc.</li>
+</ul>
+<p>If your column names don’t match these patterns, you can specify them
+explicitly:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Custom column names</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">response_var =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">is_treated =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">each =</span> <span class="dv">50</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">claude_pred_ctrl =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">claude_pred_trt =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">observed =</span> my_data,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="at">outcome =</span> <span class="st">&quot;response_var&quot;</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="at">treatment =</span> <span class="st">&quot;is_treated&quot;</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="at">pred_control =</span> <span class="st">&quot;claude_pred_ctrl&quot;</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="at">pred_treated =</span> <span class="st">&quot;claude_pred_trt&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>)</span></code></pre></div>
+<p>You can even use different column names for observed and unobserved
+data:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">observed =</span> obs_df,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">unobserved =</span> unobs_df,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">obs_outcome =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">obs_treatment =</span> <span class="st">&quot;treated&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">obs_pred_control =</span> <span class="st">&quot;gpt_pred_0&quot;</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">obs_pred_treated =</span> <span class="st">&quot;gpt_pred_1&quot;</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">unobs_treatment =</span> <span class="st">&quot;D&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">unobs_pred_control =</span> <span class="st">&quot;S0&quot;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">unobs_pred_treated =</span> <span class="st">&quot;S1&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="formula-interface" class="section level3">
+<h3>Formula Interface</h3>
+<p>For even more flexibility, you can use a formula interface directly
+in the estimator functions. This is similar to the syntax used by
+<code>ivreg</code> and other regression packages:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Formula: outcome ~ treatment | predictions</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># Using custom column names directly in the estimator</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># For GREG-type estimators (single prediction per arm)</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_greg</span>(response <span class="sc">~</span> treatment <span class="sc">|</span> pred_1 <span class="sc">+</span> pred_0,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>                   <span class="at">observed =</span> obs_df, <span class="at">unobserved =</span> unobs_df)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co"># For DiP-type estimators (both predictions)</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dt_dip</span>(Y <span class="sc">~</span> D <span class="sc">|</span> S1 <span class="sc">+</span> S0,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>                     <span class="at">observed =</span> obs_df, <span class="at">unobserved =</span> unobs_df)</span></code></pre></div>
+<p>The formula has three parts: 1. <strong>Left of
+<code>~</code></strong>: The outcome variable name 2. <strong>Between
+<code>~</code> and <code>|</code></strong>: The treatment indicator
+variable name 3. <strong>After <code>|</code></strong>: The prediction
+variable name(s)</p>
+<p>For DiM (which doesn’t use predictions), you can omit the prediction
+part:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dim</span>(response <span class="sc">~</span> treated, <span class="at">observed =</span> obs_df)</span></code></pre></div>
+</div>
+</div>
+<div id="the-seven-estimators" class="section level2">
+<h2>The Seven Estimators</h2>
+<div id="difference-in-means-dim" class="section level3">
+<h3>1. Difference-in-Means (DiM)</h3>
+<p>The classical estimator that ignores LLM predictions entirely:</p>
+<p><span class="math display">\[\hat{\tau}^{DiM} = \bar{Y}_1 -
+\bar{Y}_0\]</span></p>
+<p>Use this as your baseline. It’s unbiased and requires no
+predictions.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dim</span>(msd)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Estimator: Difference-in-Means (DiM) </span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.4980 </span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.1330 </span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.2373, 0.7586]</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span></code></pre></div>
+</div>
+<div id="greg-calibration-estimator" class="section level3">
+<h3>2. GREG (Calibration Estimator)</h3>
+<p>GREG uses predictions to “calibrate” the estimate:</p>
+<p><span class="math display">\[\hat{\tau}^{GREG} =
+\left[\bar{S}^{(1)}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1})\right] -
+\left[\bar{S}^{(0)}_U + (\bar{Y}_0 -
+\bar{S}^{(0)}_{O_0})\right]\]</span></p>
+<p>This adjusts the prediction mean by the observed “rectifier” (the
+average prediction error in the labeled data).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_greg</span>(msd)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; Estimator: GREG (lambda = 1) </span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.3166 </span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.1054 </span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.1100, 0.5232]</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt;   lambda:        1.0000 </span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="ppi-power-tuned" class="section level3">
+<h3>3. PPI++ (Power-Tuned)</h3>
+<p>PPI++ improves on GREG by estimating an optimal tuning parameter
+<span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[\hat{\mu}_d^{PPI}(\lambda) = \bar{Y}_d +
+\lambda(\bar{S}^{(d)}_U - \bar{S}^{(d)}_O)\]</span></p>
+<p>When <span class="math inline">\(\lambda = 1\)</span>, this equals
+GREG. PPI++ estimates <span class="math inline">\(\lambda\)</span> to
+minimize variance using cross-fitting.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_ppi</span>(msd, <span class="at">n_folds =</span> <span class="dv">2</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; Estimator: PPI++ (cross-fit, K=2) </span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.3485 </span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.0983 </span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.1559, 0.5411]</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;   lambda:        0.8199 </span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="d-t-doubly-tuned" class="section level3">
+<h3>4. D-T (Doubly-Tuned)</h3>
+<p>D-T uses separate tuning parameters for each arm (<span class="math inline">\(\lambda_1\)</span> for treatment, <span class="math inline">\(\lambda_0\)</span> for control):</p>
+<p><span class="math display">\[\hat{\tau}^{D-T} =
+\hat{\mu}_1^{PPI}(\lambda_1) - \hat{\mu}_0^{PPI}(\lambda_0)\]</span></p>
+<p>This is useful when prediction quality differs between treatment and
+control conditions.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dt</span>(msd, <span class="at">n_folds =</span> <span class="dv">2</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; Estimator: D-T (Doubly-Tuned, cross-fit, K=2) </span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.3410 </span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.0983 </span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.1484, 0.5336]</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt;   lambda_1 (treatment):  0.8764 </span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt;   lambda_0 (control):    0.7941 </span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="dip-difference-in-predictions" class="section level3">
+<h3>5. DiP (Difference-in-Predictions)</h3>
+<p>DiP uses the <em>contrast</em> <span class="math inline">\(S^{(1)} -
+S^{(0)}\)</span> for each unlabeled unit:</p>
+<p><span class="math display">\[\hat{\tau}^{DiP} = \overline{S^{(1)} -
+S^{(0)}}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 -
+\bar{S}^{(0)}_{O_0})\]</span></p>
+<p><strong>Key insight</strong>: When <span class="math inline">\(S^{(1)}\)</span> and <span class="math inline">\(S^{(0)}\)</span> are positively correlated (which
+they often are—units that score high under treatment also tend to score
+high under control), the variance of their difference is smaller than
+the sum of their individual variances.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dip</span>(msd)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; Estimator: DiP (Difference-in-Predictions, lambda = 1) </span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.2863 </span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.0978 </span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.0947, 0.4779]</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;   lambda:        1.0000 </span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="dip-power-tuned-dip" class="section level3">
+<h3>6. DiP++ (Power-Tuned DiP)</h3>
+<p>DiP++ applies power-tuning to the DiP estimator with a single <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[\hat{\tau}^{DiP++}(\lambda) = \lambda
+\cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 -
+\lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 -
+\lambda\bar{S}^{(0)}_{O_0})\]</span></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dip_pp</span>(msd, <span class="at">n_folds =</span> <span class="dv">2</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; Estimator: DiP++ (cross-fit, K=2) </span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.3108 </span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.0953 </span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.1240, 0.4977]</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt;   lambda:        0.8790 </span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="d-t-dip-doubly-tuned-dip" class="section level3">
+<h3>7. D-T DiP (Doubly-Tuned DiP)</h3>
+<p>The most flexible estimator combines DiP with arm-specific
+tuning:</p>
+<p><span class="math display">\[\hat{\tau}^{D-T\ DiP} =
+\overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 -
+\lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 -
+\lambda_0\bar{S}^{(0)}_{O_0})\]</span></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dt_dip</span>(msd, <span class="at">n_folds =</span> <span class="dv">2</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; =================================</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; Estimator: D-T DiP (cross-fit, K=2) </span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; Point Estimate:  0.2887 </span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; Standard Error:  0.0961 </span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; 95% CI:         [0.1003, 0.4771]</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; Tuning Parameters:</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt;   lambda_1 (treatment):  1.0055 </span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt;   lambda_0 (control):    0.8666 </span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; Sample Sizes:</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt;   Unobserved: |U|=1000</span></span></code></pre></div>
+</div>
+<div id="comparing-all-estimators" class="section level3">
+<h3>Comparing All Estimators</h3>
+<p>Use <code>estimate_all()</code> to run all applicable estimators at
+once:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>all_results <span class="ot">&lt;-</span> <span class="fu">estimate_all</span>(msd)</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">print</span>(all_results)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; Mixed-Subjects Design: All Estimators</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; ======================================</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt;                                    Estimator Estimate     SE 95% CI Lower</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt;                    Difference-in-Means (DiM)   0.4980 0.1330       0.2373</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt;                            GREG (lambda = 1)   0.3166 0.1054       0.1100</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt;                       PPI++ (cross-fit, K=2)   0.3388 0.0983       0.1461</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt;           D-T (Doubly-Tuned, cross-fit, K=2)   0.3450 0.0983       0.1524</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt;  DiP (Difference-in-Predictions, lambda = 1)   0.2863 0.0978       0.0947</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt;                       DiP++ (cross-fit, K=2)   0.3273 0.0953       0.1404</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co">#&gt;                     D-T DiP (cross-fit, K=2)   0.2827 0.0961       0.0943</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co">#&gt;  95% CI Upper</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="co">#&gt;        0.7586</span></span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a><span class="co">#&gt;        0.5232</span></span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a><span class="co">#&gt;        0.5314</span></span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="co">#&gt;        0.5377</span></span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a><span class="co">#&gt;        0.4779</span></span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a><span class="co">#&gt;        0.5141</span></span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a><span class="co">#&gt;        0.4710</span></span></code></pre></div>
+</div>
+</div>
+<div id="choosing-the-right-estimator" class="section level2">
+<h2>Choosing the Right Estimator</h2>
+<div id="decision-tree" class="section level3">
+<h3>Decision Tree</h3>
+<p>Here’s a practical guide for choosing an estimator:</p>
+<pre><code>Do you have LLM predictions?
+├── No → Use DiM
+└── Yes → Do you have BOTH S^(1) and S^(0) for each unit?
+    ├── No (only arm-specific) →
+    │   └── Is prediction quality similar across arms?
+    │       ├── Yes → Use PPI++
+    │       └── No → Use D-T
+    └── Yes (both predictions) →
+        └── Are S^(1) and S^(0) positively correlated?
+            ├── Yes → Use D-T DiP (recommended)
+            └── No/Unsure → Use D-T</code></pre>
+</div>
+<div id="when-to-use-dip-type-estimators" class="section level3">
+<h3>When to Use DiP-Type Estimators</h3>
+<p>The DiP family (DiP, DiP++, D-T DiP) is most beneficial when:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Predictions are positively correlated</strong>: <span class="math inline">\(Cov(S^{(1)}, S^{(0)}) &gt; 0\)</span></li>
+<li><strong>You can afford 2 predictions per unit</strong>: This doubles
+the prediction cost</li>
+</ol>
+<p>You can check the correlation in your pilot data:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">cor</span>(unobserved_df<span class="sc">$</span>S1, unobserved_df<span class="sc">$</span>S0)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.4068407</span></span></code></pre></div>
+<p>A positive correlation (which is common) means DiP estimators will
+likely outperform GREG-type estimators.</p>
+</div>
+</div>
+<div id="variance-estimation" class="section level2">
+<h2>Variance Estimation</h2>
+<div id="delta-method-default" class="section level3">
+<h3>Delta-Method (Default)</h3>
+<p>All estimators use the delta-method for variance estimation by
+default. This provides fast, analytical variance estimates based on the
+formulas derived in the accompanying paper.</p>
+</div>
+<div id="bootstrap-optional" class="section level3">
+<h3>Bootstrap (Optional)</h3>
+<p>For robustness, you can also use the fold-respecting bootstrap:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Bootstrap variance for D-T DiP</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>boot_result <span class="ot">&lt;-</span> <span class="fu">bootstrap_variance</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  msd,</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">estimator =</span> <span class="st">&quot;dt_dip&quot;</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="at">n_bootstrap =</span> <span class="dv">500</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">42</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>)</span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Delta-method SE:&quot;</span>, <span class="fu">round</span>(result_dt_dip<span class="sc">$</span>se, <span class="dv">4</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; Delta-method SE: 0.096</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bootstrap SE:&quot;</span>, <span class="fu">round</span>(boot_result<span class="sc">$</span>se, <span class="dv">4</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt; Bootstrap SE: 0.0946</span></span></code></pre></div>
+<p>The bootstrap is computationally more expensive but provides a useful
+check on the delta-method variance.</p>
+</div>
+</div>
+<div id="optimal-experimental-design" class="section level2">
+<h2>Optimal Experimental Design</h2>
+<div id="the-design-problem" class="section level3">
+<h3>The Design Problem</h3>
+<p>Before running your experiment, you need to decide:</p>
+<ol style="list-style-type: decimal">
+<li><strong>How many human subjects</strong> to recruit (<span class="math inline">\(n_O\)</span>)</li>
+<li><strong>How many LLM predictions</strong> to generate (<span class="math inline">\(n_U\)</span>)</li>
+<li><strong>Which estimator</strong> to use</li>
+</ol>
+<p>These decisions depend on: - Your <strong>total budget</strong> - The
+<strong>cost per human subject</strong> - The <strong>cost per LLM
+prediction</strong> - The <strong>quality of predictions</strong>
+(estimated from pilot data)</p>
+</div>
+<div id="using-optimal_design" class="section level3">
+<h3>Using <code>optimal_design()</code></h3>
+<p>The <code>optimal_design()</code> function finds the allocation that
+minimizes expected variance given your budget constraints:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">optimal_design</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="at">pilot_data =</span> msd,          <span class="co"># Pilot study data</span></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>  <span class="at">budget =</span> <span class="dv">5000</span>,             <span class="co"># Total budget in dollars</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>  <span class="at">cost_human =</span> <span class="dv">5</span>,            <span class="co"># $5 per human response</span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>  <span class="at">cost_prediction =</span> <span class="fl">0.01</span>,    <span class="co"># $0.01 per LLM prediction</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>  <span class="at">treatment_prob =</span> <span class="fl">0.5</span>       <span class="co"># Balanced treatment assignment</span></span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="fu">print</span>(design)</span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="co">#&gt; Optimal Mixed-Subjects Design</span></span>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co">#&gt; ==============================</span></span>
+<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb22-14"><a href="#cb22-14" tabindex="-1"></a><span class="co">#&gt; Recommended Design:</span></span>
+<span id="cb22-15"><a href="#cb22-15" tabindex="-1"></a><span class="co">#&gt;   Estimator:         DT_DIP </span></span>
+<span id="cb22-16"><a href="#cb22-16" tabindex="-1"></a><span class="co">#&gt;   Observed units:    970 </span></span>
+<span id="cb22-17"><a href="#cb22-17" tabindex="-1"></a><span class="co">#&gt;     - Treated:       485 </span></span>
+<span id="cb22-18"><a href="#cb22-18" tabindex="-1"></a><span class="co">#&gt;     - Control:       485 </span></span>
+<span id="cb22-19"><a href="#cb22-19" tabindex="-1"></a><span class="co">#&gt;   Unobserved units:  7500 </span></span>
+<span id="cb22-20"><a href="#cb22-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb22-21"><a href="#cb22-21" tabindex="-1"></a><span class="co">#&gt; Expected Performance:</span></span>
+<span id="cb22-22"><a href="#cb22-22" tabindex="-1"></a><span class="co">#&gt;   Variance:  0.0019 </span></span>
+<span id="cb22-23"><a href="#cb22-23" tabindex="-1"></a><span class="co">#&gt;   SE:        0.0434 </span></span>
+<span id="cb22-24"><a href="#cb22-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb22-25"><a href="#cb22-25" tabindex="-1"></a><span class="co">#&gt; Budget:</span></span>
+<span id="cb22-26"><a href="#cb22-26" tabindex="-1"></a><span class="co">#&gt;   Total:    $5,000</span></span>
+<span id="cb22-27"><a href="#cb22-27" tabindex="-1"></a><span class="co">#&gt;   Used:     $5,000</span></span>
+<span id="cb22-28"><a href="#cb22-28" tabindex="-1"></a><span class="co">#&gt;   Human:    $5/observation</span></span>
+<span id="cb22-29"><a href="#cb22-29" tabindex="-1"></a><span class="co">#&gt;   Predict:  $0.01/prediction</span></span>
+<span id="cb22-30"><a href="#cb22-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb22-31"><a href="#cb22-31" tabindex="-1"></a><span class="co">#&gt; Comparison Across Estimators:</span></span>
+<span id="cb22-32"><a href="#cb22-32" tabindex="-1"></a><span class="co">#&gt;  Estimator n_obs n_unobs     SE</span></span>
+<span id="cb22-33"><a href="#cb22-33" tabindex="-1"></a><span class="co">#&gt;        DIM  1000       0 0.0595</span></span>
+<span id="cb22-34"><a href="#cb22-34" tabindex="-1"></a><span class="co">#&gt;       GREG   951   24500 0.0443</span></span>
+<span id="cb22-35"><a href="#cb22-35" tabindex="-1"></a><span class="co">#&gt;        PPI   960   20000 0.0439</span></span>
+<span id="cb22-36"><a href="#cb22-36" tabindex="-1"></a><span class="co">#&gt;         DT   960   20000 0.0438</span></span>
+<span id="cb22-37"><a href="#cb22-37" tabindex="-1"></a><span class="co">#&gt;        DIP   960   10000 0.0438</span></span>
+<span id="cb22-38"><a href="#cb22-38" tabindex="-1"></a><span class="co">#&gt;     DIP_PP   970    7500 0.0435</span></span>
+<span id="cb22-39"><a href="#cb22-39" tabindex="-1"></a><span class="co">#&gt;     DT_DIP   970    7500 0.0434</span></span></code></pre></div>
+</div>
+<div id="interpreting-the-results" class="section level3">
+<h3>Interpreting the Results</h3>
+<p>The output tells you:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Recommended estimator</strong>: Which of the 7 estimators to
+use</li>
+<li><strong>Sample sizes</strong>: How many observed and unobserved
+units</li>
+<li><strong>Expected SE</strong>: The anticipated standard error</li>
+</ol>
+</div>
+<div id="comparing-designs" class="section level3">
+<h3>Comparing Designs</h3>
+<p>The output also shows how different estimators perform at their
+optimal allocations. This helps you understand the trade-offs:</p>
+<ul>
+<li><strong>DiM</strong> uses all budget on human subjects (no
+predictions)</li>
+<li><strong>GREG/PPI++/D-T</strong> use 1 prediction per unlabeled
+unit</li>
+<li><strong>DiP/DiP++/D-T DiP</strong> use 2 predictions per unlabeled
+unit</li>
+</ul>
+</div>
+</div>
+<div id="practical-workflow" class="section level2">
+<h2>Practical Workflow</h2>
+<p>Here’s a recommended workflow for using mixed-subjects designs in
+your research:</p>
+<div id="step-1-pilot-study" class="section level3">
+<h3>Step 1: Pilot Study</h3>
+<p>Run a small pilot study with both human subjects and LLM
+predictions:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co"># Collect pilot data</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>pilot_observed <span class="ot">&lt;-</span> <span class="fu">collect_human_responses</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>pilot_observed<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(pilot_observed, <span class="at">condition =</span> <span class="st">&quot;treatment&quot;</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>pilot_observed<span class="sc">$</span>S0 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(pilot_observed, <span class="at">condition =</span> <span class="st">&quot;control&quot;</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>pilot_unobserved <span class="ot">&lt;-</span> <span class="fu">generate_synthetic_units</span>(<span class="at">n =</span> <span class="dv">200</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>pilot_unobserved<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(pilot_unobserved, <span class="at">condition =</span> <span class="st">&quot;treatment&quot;</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>pilot_unobserved<span class="sc">$</span>S0 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(pilot_unobserved, <span class="at">condition =</span> <span class="st">&quot;control&quot;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a>pilot_msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(<span class="at">observed =</span> pilot_observed, <span class="at">unobserved =</span> pilot_unobserved)</span></code></pre></div>
+</div>
+<div id="step-2-estimate-prediction-quality" class="section level3">
+<h3>Step 2: Estimate Prediction Quality</h3>
+<p>Examine how well LLM predictions correlate with actual outcomes:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co"># Check correlations</span></span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>pilot_results <span class="ot">&lt;-</span> <span class="fu">estimate_all</span>(pilot_msd)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">print</span>(pilot_results)</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="co"># Compare to DiM baseline</span></span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>dim_se <span class="ot">&lt;-</span> pilot_results<span class="sc">$</span>SE[pilot_results<span class="sc">$</span>Estimator <span class="sc">==</span> <span class="st">&quot;Difference-in-Means (DiM)&quot;</span>]</span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>best_se <span class="ot">&lt;-</span> <span class="fu">min</span>(pilot_results<span class="sc">$</span>SE)</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>variance_reduction <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (best_se <span class="sc">/</span> dim_se)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Potential variance reduction:&quot;</span>, <span class="fu">round</span>(variance_reduction <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">&quot;%</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="step-3-plan-your-main-study" class="section level3">
+<h3>Step 3: Plan Your Main Study</h3>
+<p>Use the pilot data to design your main study:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">optimal_design</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="at">pilot_data =</span> pilot_msd,</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="at">budget =</span> <span class="dv">10000</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>  <span class="at">cost_human =</span> <span class="dv">5</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>  <span class="at">cost_prediction =</span> <span class="fl">0.01</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>)</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a><span class="fu">print</span>(design)</span></code></pre></div>
+</div>
+<div id="step-4-run-the-main-study" class="section level3">
+<h3>Step 4: Run the Main Study</h3>
+<p>Collect data according to your design:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># Collect human responses</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>main_observed <span class="ot">&lt;-</span> <span class="fu">collect_human_responses</span>(<span class="at">n =</span> design<span class="sc">$</span>optimal_n_obs)</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co"># Generate LLM predictions</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>main_observed<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(main_observed, <span class="st">&quot;treatment&quot;</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>main_observed<span class="sc">$</span>S0 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(main_observed, <span class="st">&quot;control&quot;</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>main_unobserved <span class="ot">&lt;-</span> <span class="fu">generate_synthetic_units</span>(<span class="at">n =</span> design<span class="sc">$</span>optimal_n_unobs)</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>main_unobserved<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(main_unobserved, <span class="st">&quot;treatment&quot;</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a>main_unobserved<span class="sc">$</span>S0 <span class="ot">&lt;-</span> <span class="fu">get_llm_predictions</span>(main_unobserved, <span class="st">&quot;control&quot;</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a>main_msd <span class="ot">&lt;-</span> <span class="fu">msd_data</span>(<span class="at">observed =</span> main_observed, <span class="at">unobserved =</span> main_unobserved)</span></code></pre></div>
+</div>
+<div id="step-5-analyze-and-report" class="section level3">
+<h3>Step 5: Analyze and Report</h3>
+<p>Estimate the treatment effect using the recommended estimator:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="co"># Run the recommended estimator</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">msd_dt_dip</span>(main_msd)  <span class="co"># Or whichever was recommended</span></span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="fu">print</span>(result)</span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co"># Optionally verify with bootstrap</span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a>boot_result <span class="ot">&lt;-</span> <span class="fu">bootstrap_variance</span>(main_msd, <span class="st">&quot;dt_dip&quot;</span>, <span class="at">n_bootstrap =</span> <span class="dv">1000</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="common-questions" class="section level2">
+<h2>Common Questions</h2>
+<div id="q-what-if-my-llm-predictions-are-biased" class="section level3">
+<h3>Q: What if my LLM predictions are biased?</h3>
+<p><strong>A</strong>: That’s fine! The MSD estimators are designed to
+be valid even when predictions are biased. The human subjects data is
+used to “rectify” any systematic bias in the predictions. You will still
+get unbiased estimates with valid confidence intervals.</p>
+</div>
+<div id="q-how-much-do-predictions-need-to-correlate-with-outcomes" class="section level3">
+<h3>Q: How much do predictions need to correlate with outcomes?</h3>
+<p><strong>A</strong>: Any positive correlation helps, but more is
+better. As a rough guide: - <span class="math inline">\(\rho &gt;
+0.3\)</span>: Modest variance reduction - <span class="math inline">\(\rho &gt; 0.5\)</span>: Substantial variance
+reduction - <span class="math inline">\(\rho &gt; 0.7\)</span>: Large
+variance reduction</p>
+<p>You can estimate this correlation from your pilot data.</p>
+</div>
+<div id="q-should-i-use-cross-fitting" class="section level3">
+<h3>Q: Should I use cross-fitting?</h3>
+<p><strong>A</strong>: Yes, for the tuned estimators (PPI++, D-T, DiP++,
+D-T DiP). Cross-fitting ensures that the tuning parameters are estimated
+independently of the data used to compute the estimate, which prevents
+bias. The default <code>n_folds = 2</code> works well in most cases.</p>
+</div>
+<div id="q-what-if-predictions-are-worse-in-one-treatment-arm" class="section level3">
+<h3>Q: What if predictions are worse in one treatment arm?</h3>
+<p><strong>A</strong>: Use the D-T or D-T DiP estimators. These use
+arm-specific tuning parameters (<span class="math inline">\(\lambda_1\)</span> and <span class="math inline">\(\lambda_0\)</span>), which automatically adapt to
+different prediction quality across arms.</p>
+</div>
+<div id="q-how-many-folds-should-i-use-for-cross-fitting" class="section level3">
+<h3>Q: How many folds should I use for cross-fitting?</h3>
+<p><strong>A</strong>: We recommend <code>n_folds = 2</code> for most
+applications. More folds use data more efficiently but increase
+computational cost. With 2 folds, half the labeled data is used to
+estimate tuning parameters and half for estimation in each fold.</p>
+</div>
+<div id="q-can-i-use-predictions-from-multiple-llms" class="section level3">
+<h3>Q: Can I use predictions from multiple LLMs?</h3>
+<p><strong>A</strong>: The current package supports one set of
+predictions. If you have multiple LLMs, you could: 1. Use the single
+best-performing LLM 2. Average predictions across LLMs before using them
+3. Use the LLM whose predictions have the highest correlation with
+outcomes</p>
+</div>
+</div>
+<div id="technical-details" class="section level2">
+<h2>Technical Details</h2>
+<div id="assumptions" class="section level3">
+<h3>Assumptions</h3>
+<p>The MSD estimators require:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Random sampling</strong>: Both observed and unobserved units
+are drawn from the same population</li>
+<li><strong>Random treatment assignment</strong>: Treatment is randomly
+assigned in both pools</li>
+<li><strong>Independent predictions</strong>: The LLM predictions don’t
+use the observed outcomes</li>
+<li><strong>Finite variances</strong>: Standard regularity
+conditions</li>
+</ol>
+</div>
+<div id="variance-formulas" class="section level3">
+<h3>Variance Formulas</h3>
+<p>For reference, the variance formulas for key estimators:</p>
+<p><strong>DiM</strong>: <span class="math display">\[Var(\hat{\tau}^{DiM}) =
+\frac{\sigma^2_{Y(1)}}{n_1} + \frac{\sigma^2_{Y(0)}}{n_0}\]</span></p>
+<p><strong>GREG</strong>: <span class="math display">\[Var(\hat{\tau}^{GREG}) = \sum_{d \in \{0,1\}}
+\left[\frac{\sigma^2_{S^{(d)}}}{m_d} + \frac{Var(Y(d) -
+S^{(d)})}{n_d}\right]\]</span></p>
+<p><strong>DiP</strong>: <span class="math display">\[Var(\hat{\tau}^{DiP}) = \frac{Var(S^{(1)} -
+S^{(0)})}{m} + \sum_{d \in \{0,1\}} \frac{Var(Y(d) -
+S^{(d)})}{n_d}\]</span></p>
+<p>The tuned estimators (PPI++, D-T, DiP++, D-T DiP) have more complex
+variance formulas that account for the estimation of tuning
+parameters.</p>
+</div>
+</div>
+<div id="citation" class="section level2">
+<h2>Citation</h2>
+<p>If you use this package in your research, please cite:</p>
+<pre><code>van Loon, A. and Kanopka, K. (2025). Causal Inference in Experiments with
+Mixed-Subjects Designs. R package version 0.1.0.</code></pre>
+</div>
+<div id="session-info" class="section level2">
+<h2>Session Info</h2>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="co">#&gt; R version 4.4.1 (2024-06-14 ucrt)</span></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=English_United States.utf8 </span></span>
+<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
+<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
+<span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
+<span id="cb29-15"><a href="#cb29-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-16"><a href="#cb29-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
+<span id="cb29-17"><a href="#cb29-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb29-18"><a href="#cb29-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-19"><a href="#cb29-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb29-20"><a href="#cb29-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb29-21"><a href="#cb29-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb29-22"><a href="#cb29-22" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb29-23"><a href="#cb29-23" tabindex="-1"></a><span class="co">#&gt;  [1] digest_0.6.36     R6_2.6.1          fastmap_1.2.0     xfun_0.50        </span></span>
+<span id="cb29-24"><a href="#cb29-24" tabindex="-1"></a><span class="co">#&gt;  [5] cachem_1.1.0      knitr_1.49        htmltools_0.5.8.1 rmarkdown_2.29   </span></span>
+<span id="cb29-25"><a href="#cb29-25" tabindex="-1"></a><span class="co">#&gt;  [9] lifecycle_1.0.4   cli_3.6.3         sass_0.4.9        jquerylib_0.1.4  </span></span>
+<span id="cb29-26"><a href="#cb29-26" tabindex="-1"></a><span class="co">#&gt; [13] compiler_4.4.1    rstudioapi_0.17.1 tools_4.4.1       evaluate_1.0.3   </span></span>
+<span id="cb29-27"><a href="#cb29-27" tabindex="-1"></a><span class="co">#&gt; [17] bslib_0.8.0       yaml_2.3.10       rlang_1.1.4       jsonlite_1.8.9</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
