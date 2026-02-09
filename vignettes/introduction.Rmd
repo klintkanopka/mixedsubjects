@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Introduction to Mixed-Subjects Designs}
+  %\VignetteIndexEntry{Introduction to Mixed-Subjects Designs with the mixedsubjects Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -65,6 +65,8 @@ devtools::load_all("path/to/mixedsubjects")
 
 ```{r load-package, echo=FALSE, message=FALSE}
 # For the vignette, we source the files directly
+
+library(mixedsubjects)
 pkg_dir <- system.file(package = "mixedsubjects")
 if (pkg_dir == "") {
   # Running from source
