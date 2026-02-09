@@ -53,11 +53,8 @@ how to allocate your budget between human subjects and LLM predictions.
 ## Installation
 
 ``` r
-# Install from local source
-devtools::install("path/to/mixedsubjects")
-
-# Or load for development
-devtools::load_all("path/to/mixedsubjects")
+# Install from github
+devtools::install_github('klintkanopka/mixedsubjects')
 ```
 
 ## A Quick Example
