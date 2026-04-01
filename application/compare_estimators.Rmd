@@ -407,7 +407,7 @@ scenarios <- list(
   "1: Poor predictions"        = comp1,
   "2: Neg corr predictions"    = comp2,
   "3: Heterogeneous quality"   = comp3,
-  "4: High common-mode error"  = comp4,
+  "4: High common-mode error"  = comp4, 
   "5: Common-mode + hetero"    = comp5,
   "6: Near-perfect"            = comp6
 )
