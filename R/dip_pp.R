@@ -194,6 +194,10 @@ compute_dip_pp_estimate <- function(obs, unobs, treated_idx, control_idx, lambda
 }
 
 #' Compute DiP++ variance using delta method
+#'
+#' The unobserved component var_U = lambda^2 * Var(S1-S0) / m is shared across
+#' all folds and is NOT divided by K. The labeled components' K factors cancel
+#' when averaging across folds.
 #' @keywords internal
 compute_dip_pp_variance <- function(data, lambda, n_folds) {
   obs <- data$observed
@@ -203,33 +207,20 @@ compute_dip_pp_variance <- function(data, lambda, n_folds) {
   n0 <- sum(obs$D == 0)
   m <- nrow(unobs)
 
-  n1_k <- n1 / n_folds
-  n0_k <- n0 / n_folds
-
   Y1 <- obs$Y[obs$D == 1]
   Y0 <- obs$Y[obs$D == 0]
   S1_obs_1 <- obs$S1[obs$D == 1]
   S0_obs_0 <- obs$S0[obs$D == 0]
 
-  var_Y1 <- var(Y1)
-  var_Y0 <- var(Y0)
-  var_S1_obs <- var(S1_obs_1)
-  var_S0_obs <- var(S0_obs_0)
-  cov_YS_1 <- cov(Y1, S1_obs_1)
-  cov_YS_0 <- cov(Y0, S0_obs_0)
-  var_S_diff <- var(unobs$S1 - unobs$S0)
+  # Unobserved component (shared across folds, not divided by K)
+  var_U <- lambda^2 * var(unobs$S1 - unobs$S0) / m
 
-  var_U <- lambda^2 * var_S_diff / m
+  # Labeled components per arm
+  var_1_labeled <- (var(Y1) + lambda^2 * var(S1_obs_1) - 2 * lambda * cov(Y1, S1_obs_1)) / n1
+  var_0_labeled <- (var(Y0) + lambda^2 * var(S0_obs_0) - 2 * lambda * cov(Y0, S0_obs_0)) / n0
 
-  var_1 <- var_Y1 / n1_k +
-           lambda^2 * var_S1_obs / n1_k -
-           2 * lambda * cov_YS_1 / n1_k
-
-  var_0 <- var_Y0 / n0_k +
-           lambda^2 * var_S0_obs / n0_k -
-           2 * lambda * cov_YS_0 / n0_k
-
-  variance <- (var_U + var_1 + var_0) / n_folds
+  # Total: unobserved (no /K) + labeled
+  variance <- var_U + var_1_labeled + var_0_labeled
 
   return(max(variance, 0))
 }

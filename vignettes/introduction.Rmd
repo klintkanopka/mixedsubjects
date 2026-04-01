@@ -112,14 +112,17 @@ observed_df$S1 <- 0.6 * observed_df$Y + rnorm(n_observed, 0, 0.5)
 observed_df$S0 <- 0.5 * observed_df$Y + rnorm(n_observed, 0, 0.6)
 
 # Unobserved units (only have predictions, no actual Y)
+# Predictions must come from the same pipeline as observed (Assumption C: Random Labeling)
 n_unobserved <- 1000
+D_unobs <- rep(c(1, 0), each = n_unobserved / 2)
+latent_Y <- ifelse(D_unobs == 1,
+                   rnorm(n_unobserved / 2, mean = true_ate, sd = 1),
+                   rnorm(n_unobserved / 2, mean = 0, sd = 1))
 unobserved_df <- data.frame(
-  D = rep(c(1, 0), each = n_unobserved / 2),
-  S1 = rnorm(n_unobserved, mean = 0.15, sd = 0.7),
-  S0 = rnorm(n_unobserved, mean = 0, sd = 0.7)
+  D = D_unobs,
+  S1 = 0.6 * latent_Y + rnorm(n_unobserved, 0, 0.5),
+  S0 = 0.5 * latent_Y + rnorm(n_unobserved, 0, 0.6)
 )
-# Add correlation between S1 and S0
-unobserved_df$S1 <- unobserved_df$S1 + 0.4 * unobserved_df$S0
 ```
 
 ### Creating an MSD Data Object
@@ -223,13 +226,7 @@ print(msd_combined)
 
 ### Flexible Column Names
 
-The package automatically detects common column name patterns, so you don't need to rename your columns. For example:
-
-- **Outcome**: `Y`, `y`, `outcome`, `response`, `dependent`
-- **Treatment**: `D`, `d`, `treatment`, `treat`, `treated`, `T`, `W`
-- **Predictions**: `S0`, `s0`, `pred_control`, `prediction_0`, `yhat_0`, etc.
-
-If your column names don't match these patterns, you can specify them explicitly:
+By default, the package expects columns named `Y` (outcome), `D` (treatment), `S0` (control prediction), and `S1` (treatment prediction). If your columns use different names, specify them explicitly:
 
 ```{r custom-columns, eval=FALSE}
 # Custom column names

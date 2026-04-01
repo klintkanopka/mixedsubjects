@@ -395,6 +395,12 @@ expected_variance <- function(estimator, n_obs, n_unobs, treatment_prob, moments
         cov_YS_0 <- moments$cov_Y0_S0
         cov_S1_S0 <- moments$cov_S1_S0
 
+        # TODO: Lambda bug — same issue as estimate_lambda_dt_dip() in dt_dip.R (discuss with team)
+        #
+        # Uses independent Cov(Y,S)/Var(S) but the correct solution requires
+        # solving a coupled 2x2 system that accounts for Cov(S1,S0)/m and
+        # Var(S)*(1/m + 1/n). See discussion point 6 in DISCUSSION_POINTS.txt.
+
         # Arm-specific lambdas
         lambda1 <- if (var_S1 > 0) cov_YS_1 / var_S1 else 0
         lambda0 <- if (var_S0 > 0) cov_YS_0 / var_S0 else 0

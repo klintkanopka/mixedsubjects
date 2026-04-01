@@ -168,6 +168,28 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
   )
 }
 
+# TODO: Lambda estimation bug — ignores coupling and unobserved pool (discuss with team)
+#
+# The correct variance is jointly quadratic in (lambda1, lambda0) with a
+# cross-term Cov(S1,S0)/m from the shared unobserved pool. Minimizing
+# requires solving a coupled 2x2 system:
+#
+#   lambda1 * A1 - lambda0 * B  = D1
+#   lambda0 * A0 - lambda1 * B  = D0
+#
+#   A1 = Var(S1)*(1/m + 1/n1),  A0 = Var(S0)*(1/m + 1/n0)
+#   B  = Cov(S1,S0)/m
+#   D1 = Cov(Y1,S1)/n1,         D0 = Cov(Y0,S0)/n0
+#
+#   Joint solution:
+#     lambda1* = (D1*A0 + D0*B) / (A1*A0 - B^2)
+#     lambda0* = (D0*A1 + D1*B) / (A1*A0 - B^2)
+#
+# Current code uses Cov(Y,S)/Var(S) (simple regression coefficient), which:
+#   a) Ignores coupling — estimates lambda1, lambda0 independently
+#   b) Ignores unobserved pool size m (compare to dt.R which includes it)
+# Approximately correct only when m is very large or Cov(S1,S0) ≈ 0.
+
 #' Estimate arm-specific lambdas for D-T DiP
 #' @keywords internal
 estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
@@ -195,6 +217,7 @@ estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
     lambda1 <- cov_YS_1 / var_S1
   } else {
     lambda1 <- 0
+
   }
 
   var_S0 <- var(S0_obs_0)
@@ -235,7 +258,9 @@ compute_dt_dip_estimate <- function(obs, unobs, treated_idx, control_idx,
 
 #' Compute D-T DiP variance using delta method
 #'
-#' Based on the variance formula from the paper's Supplementary Information.
+#' The unobserved component var_U = Var(lambda1*S1 - lambda0*S0) / m is shared
+#' across all folds and is NOT divided by K. The labeled components' K factors
+#' cancel when averaging across folds.
 #' @keywords internal
 compute_dt_dip_variance <- function(data, lambda1, lambda0, n_folds) {
   obs <- data$observed
@@ -246,56 +271,23 @@ compute_dt_dip_variance <- function(data, lambda1, lambda0, n_folds) {
   n0 <- sum(obs$D == 0)
   m <- nrow(unobs)
 
-  # Per-fold sizes
-  n1_k <- n1 / n_folds
-  n0_k <- n0 / n_folds
-
   # Get data
   Y1 <- obs$Y[obs$D == 1]
   Y0 <- obs$Y[obs$D == 0]
   S1_obs_1 <- obs$S1[obs$D == 1]
   S0_obs_0 <- obs$S0[obs$D == 0]
-  S1_unobs <- unobs$S1
-  S0_unobs <- unobs$S0
 
-  # Variance components from observed data
-  var_Y1 <- var(Y1)
-  var_Y0 <- var(Y0)
-  var_S1_obs <- var(S1_obs_1)
-  var_S0_obs <- var(S0_obs_0)
-  cov_YS_1 <- cov(Y1, S1_obs_1)
-  cov_YS_0 <- cov(Y0, S0_obs_0)
+  # Unobserved component: Var(lambda1*S1 - lambda0*S0) / m (shared, not divided by K)
+  var_U <- (lambda1^2 * var(unobs$S1) +
+            lambda0^2 * var(unobs$S0) -
+            2 * lambda1 * lambda0 * cov(unobs$S1, unobs$S0)) / m
 
-  # Variance components from unlabeled data
-  var_S1_unobs <- var(S1_unobs)
-  var_S0_unobs <- var(S0_unobs)
-  cov_S1_S0_unobs <- cov(S1_unobs, S0_unobs)
+  # Labeled components per arm
+  var_1_labeled <- (var(Y1) + lambda1^2 * var(S1_obs_1) - 2 * lambda1 * cov(Y1, S1_obs_1)) / n1
+  var_0_labeled <- (var(Y0) + lambda0^2 * var(S0_obs_0) - 2 * lambda0 * cov(Y0, S0_obs_0)) / n0
 
-  # Unlabeled component: Var(lambda1*S1 - lambda0*S0) / m
-  var_weighted_diff <- lambda1^2 * var_S1_unobs +
-                       lambda0^2 * var_S0_unobs -
-                       2 * lambda1 * lambda0 * cov_S1_S0_unobs
-  var_U <- var_weighted_diff / m
-
-  # Arm 1 labeled component
-  var_1 <- var_Y1 / n1_k +
-           lambda1^2 * var_S1_obs / n1_k -
-           2 * lambda1 * cov_YS_1 / n1_k
-
-  # Arm 0 labeled component
-  var_0 <- var_Y0 / n0_k +
-           lambda0^2 * var_S0_obs / n0_k -
-           2 * lambda0 * cov_YS_0 / n0_k
-
-  # Cross-fold covariance term (shared unlabeled pool)
-  # This is the additional variance from reusing U across folds
-  # Approximately: Var(lambda1*S1 - lambda0*S0) / m
-  cross_fold_cov <- var_weighted_diff / m
-
-  # Total variance
-  # For cross-fit with K=2 folds, variance is approximately:
-  # (1/2) * MSE_fold + (1/2) * cross_fold_cov
-  variance <- (var_U + var_1 + var_0) / n_folds + cross_fold_cov / (2 * n_folds)
+  # Total: unobserved (no /K) + labeled
+  variance <- var_U + var_1_labeled + var_0_labeled
 
   return(max(variance, 0))  # Ensure non-negative
 }
