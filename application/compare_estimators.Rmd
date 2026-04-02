@@ -1,0 +1,437 @@
+---
+title: "Comparing Estimators Under Different Data-Generating Processes"
+author: "mixedsubjects"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r load-package}
+devtools::load_all()     
+```
+
+## Overview
+
+Each of the seven estimators in the `mixedsubjects` package has a different
+variance formula, so each dominates under a different data-generating process.
+This document constructs targeted DGP scenarios, runs Monte Carlo simulations
+under each, and confirms which estimator achieves the smallest variance.
+
+The key quantities that drive the comparison:
+
+| Quantity | Favors |
+|----------|--------|
+| $\rho(Y, S)$ — prediction quality | All prediction-based estimators over DiM |
+| $\rho_1 \neq \rho_0$ — heterogeneous quality across arms | D-T and D-T DiP over single-$\lambda$ estimators |
+| $\text{Cov}(S^{(1)}, S^{(0)})$ — common-mode prediction error | DiP family over PPI/D-T family |
+| $m / n$ — ratio of unlabeled to labeled | Prediction-based estimators (larger $m$ helps more) |
+
+
+## Simulation Engine
+
+```{r simulation-engine}
+#' Run a Monte Carlo comparison of all seven estimators
+#'
+#' @param dgp_fn A function(seed) that returns a list with components
+#'   obs_df, unobs_df (data.frames), and true_tau (scalar).
+#' @param n_sims Number of Monte Carlo replications.
+#' @param n_folds Number of cross-fitting folds.
+#' @return A data.frame with columns: estimator, mean_est, bias, variance, mse.
+run_comparison <- function(dgp_fn, n_sims = 2000, n_folds = 2) {
+  estimator_names <- c("dim", "greg", "ppi", "dt", "dip", "dip_pp", "dt_dip")
+  results <- matrix(NA_real_, nrow = n_sims, ncol = length(estimator_names))
+  colnames(results) <- estimator_names
+
+  for (i in seq_len(n_sims)) {
+    d <- dgp_fn(seed = i)
+    msd <- msd_data(observed = d$obs_df, unobserved = d$unobs_df)
+
+    results[i, "dim"] <- tryCatch(msd_dim(msd)$estimate, error = function(e) NA)
+    results[i, "greg"] <- tryCatch(msd_greg(msd)$estimate, error = function(e) NA)
+    results[i, "ppi"] <- tryCatch(msd_ppi(msd, n_folds = n_folds)$estimate, error = function(e) NA)
+    results[i, "dt"] <- tryCatch(msd_dt(msd, n_folds = n_folds)$estimate, error = function(e) NA)
+    results[i, "dip"] <- tryCatch(msd_dip(msd)$estimate, error = function(e) NA)
+    results[i, "dip_pp"] <- tryCatch(msd_dip_pp(msd, n_folds = n_folds)$estimate, error = function(e) NA)
+    results[i, "dt_dip"] <- tryCatch(msd_dt_dip(msd, n_folds = n_folds)$estimate, error = function(e) NA)
+  }
+
+  true_tau <- dgp_fn(seed = 1)$true_tau
+
+  data.frame(
+    estimator = estimator_names,
+    mean_est  = colMeans(results, na.rm = TRUE),
+    bias      = colMeans(results, na.rm = TRUE) - true_tau,
+    variance  = apply(results, 2, var, na.rm = TRUE),
+    mse       = apply(results, 2, function(x) mean((x - true_tau)^2, na.rm = TRUE)),
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Pretty-print a comparison table, highlighting the minimum-variance estimator
+print_comparison <- function(comp, title = "") {
+  if (nchar(title) > 0) cat("###", title, "\n\n")
+  comp$variance <- round(comp$variance, 6)
+  comp$bias <- round(comp$bias, 4)
+  comp$mse <- round(comp$mse, 6)
+  best <- comp$estimator[which.min(comp$variance)]
+  comp$best <- ifelse(comp$estimator == best, " <-- min", "")
+  print(comp[, c("estimator", "bias", "variance", "mse", "best")], row.names = FALSE)
+  cat("\nLowest variance:", best, "\n\n")
+}
+```
+
+
+## Scenario 1: Poor Predictions — DiM Wins
+
+When predictions are essentially noise ($\rho(Y,S) \approx 0$), incorporating
+them only adds variance. DiM ignores predictions entirely, so it should
+dominate.
+
+```{r dgp-poor-predictions}
+dgp_poor_predictions <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 200; m <- 400
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  Y <- rnorm(n) + true_tau * D_obs
+
+  # Predictions are pure noise — no correlation with Y
+  S1_obs <- rnorm(n, 0.1, 1)
+  S0_obs <- rnorm(n, 0, 1)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  S1_unobs <- rnorm(m, 0.1, 1)
+  S0_unobs <- rnorm(m, 0, 1)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-1}
+comp1 <- run_comparison(dgp_poor_predictions)
+print_comparison(comp1, "Scenario 1: Poor Predictions")
+```
+
+**Why**: All prediction-based estimators add $\lambda^2 \text{Var}(S)/m$ to the
+variance without any offsetting covariance reduction. The optimal $\lambda$
+shrinks toward 0 for PPI++/D-T/DiP++/D-T DiP, making them roughly equal to DiM,
+while GREG and DiP (fixed $\lambda = 1$) are strictly worse.
+
+
+
+## Scenario 2: Negatively Correlated Predictions
+
+When a covariate $X$ has **opposite effects** on $Y(1)$ and $Y(0)$
+(e.g., $Y(0) = \varepsilon + X$, $Y(1) = \varepsilon' - X + \tau$),
+the potential outcomes are negatively correlated, and so are the predictions
+$S^{(1)}$ and $S^{(0)}$. This inflates $\text{Var}(S^{(1)} - S^{(0)})$
+relative to the positive-correlation case, which **reduces** DiP's advantage
+over PPI — but does not eliminate it, because DiP still benefits structurally
+from using all $m$ unobserved units rather than splitting by arm ($m/2$ each).
+
+```{r dgp-high-quality-balanced}
+dgp_neg_corr_predictions <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 200; m <- 500
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  # X has opposite effects on Y(1) vs Y(0), creating negative Cov(Y1, Y0)
+  X_obs <- rnorm(n)
+  Y0_obs <- rnorm(n, 0, 0.3) + 1.0 * X_obs
+  Y1_obs <- rnorm(n, 0, 0.3) - 1.0 * X_obs + true_tau
+  Y <- D_obs * Y1_obs + (1 - D_obs) * Y0_obs
+
+  # Good predictions of each potential outcome
+  S1_obs <- 0.85 * Y1_obs + rnorm(n, 0, 0.2)
+  S0_obs <- 0.85 * Y0_obs + rnorm(n, 0, 0.2)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  X_unobs <- rnorm(m)
+  Y0_unobs <- rnorm(m, 0, 0.3) + 1.0 * X_unobs
+  Y1_unobs <- rnorm(m, 0, 0.3) - 1.0 * X_unobs + true_tau
+  S1_unobs <- 0.85 * Y1_unobs + rnorm(m, 0, 0.2)
+  S0_unobs <- 0.85 * Y0_unobs + rnorm(m, 0, 0.2)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-2}
+comp2 <- run_comparison(dgp_neg_corr_predictions)
+print_comparison(comp2, "Scenario 2: Negatively Correlated Predictions")
+```
+
+**Why**: With $\text{Cov}(S^{(1)}, S^{(0)}) < 0$, differencing inflates the
+unobserved variance: $\text{Var}(S^{(1)} - S^{(0)}) =
+\text{Var}(S^{(1)}) + \text{Var}(S^{(0)}) - 2\text{Cov}(S^{(1)}, S^{(0)}) >
+\text{Var}(S^{(1)}) + \text{Var}(S^{(0)})$.
+However, DiP still outperforms PPI because its unobserved term divides by $m$
+while PPI divides by $m/2$ per arm. In general,
+$\frac{\text{Var}(S^{(1)} - S^{(0)})}{m} \leq \frac{\text{Var}(S^{(1)})}{m_1} + \frac{\text{Var}(S^{(0)})}{m_0}$
+always holds (by Cauchy–Schwarz), so the DiP family structurally dominates
+the PPI family in the unobserved variance component regardless of the
+sign of $\text{Cov}(S^{(1)}, S^{(0)})$. Negative correlation merely
+*shrinks* DiP's advantage relative to the positive-correlation case.
+
+
+
+## Scenario 3: Heterogeneous Prediction Quality — Double-Tuned Wins
+
+When the LLM predicts much better in one arm than the other
+($\rho_1 \gg \rho_0$), double-tuned estimators (D-T, D-T DiP) that set
+arm-specific $\lambda_1, \lambda_0$ outperform their single-$\lambda$
+counterparts (PPI++, DiP++). D-T DiP achieves the lowest variance by
+combining the double-tuning advantage with DiP's structural advantage
+of using all $m$ unobserved units.
+
+```{r dgp-heterogeneous-quality}
+dgp_heterogeneous_quality <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 200; m <- 500
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  Y0_obs <- rnorm(n)
+  Y1_obs <- Y0_obs + true_tau
+  Y <- D_obs * Y1_obs + (1 - D_obs) * Y0_obs
+
+  # Treatment arm: excellent predictions (rho ~ 0.85)
+  # Control arm: mediocre predictions (rho ~ 0.25)
+  S1_obs <- 0.9 * Y1_obs + rnorm(n, 0, 0.3)
+  S0_obs <- 0.2 * Y0_obs + rnorm(n, 0, 0.9)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  Y0_unobs <- rnorm(m)
+  Y1_unobs <- Y0_unobs + true_tau
+  S1_unobs <- 0.9 * Y1_unobs + rnorm(m, 0, 0.3)
+  S0_unobs <- 0.2 * Y0_unobs + rnorm(m, 0, 0.9)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-3}
+comp3 <- run_comparison(dgp_heterogeneous_quality)
+print_comparison(comp3, "Scenario 3: Heterogeneous Quality Across Arms")
+```
+
+**Why**: A single $\lambda$ must compromise between the two arms: PPI++ and
+DiP++ cannot fully exploit the good treatment-arm predictions without also
+amplifying noise in the control arm. Double-tuned estimators (D-T, D-T DiP)
+set $\lambda_1$ high and $\lambda_0$ low, avoiding this trade-off. Within
+each tuning family, DiP-style estimators beat their PPI-style counterparts
+(D-T DiP < D-T, DiP++ < PPI++) because they use all $m$ unobserved units
+rather than splitting by arm.
+
+
+## Scenario 4: High Common-Mode Error 
+
+When predictions for $S^{(1)}$ and $S^{(0)}$ share a large common error
+component (e.g., the LLM has a stable unit-level bias that cancels in
+$S^{(1)} - S^{(0)}$), the DiP family exploits $\text{Cov}(S^{(1)}, S^{(0)}) > 0$
+to reduce the unobserved variance component.
+
+```{r dgp-high-common-mode}
+dgp_high_common_mode <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 200; m <- 500
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  Y0_obs <- rnorm(n)
+  Y1_obs <- Y0_obs + true_tau
+  Y <- D_obs * Y1_obs + (1 - D_obs) * Y0_obs
+
+  # Common-mode prediction error (shared LLM bias per unit, not in Y)
+  common_obs <- rnorm(n, 0, 0.8)
+  S1_obs <- 0.9 * Y1_obs + common_obs + rnorm(n, 0, 0.1)
+  S0_obs <- 0.9 * Y0_obs + common_obs + rnorm(n, 0, 0.1)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  Y0_unobs <- rnorm(m)
+  Y1_unobs <- Y0_unobs + true_tau
+  common_unobs <- rnorm(m, 0, 0.8)
+  S1_unobs <- 0.9 * Y1_unobs + common_unobs + rnorm(m, 0, 0.1)
+  S0_unobs <- 0.9 * Y0_unobs + common_unobs + rnorm(m, 0, 0.1)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-4}
+comp4 <- run_comparison(dgp_high_common_mode)
+print_comparison(comp4, "Scenario 4: High Common-Mode Prediction Error")
+```
+
+**Why**: $\text{Var}(S^{(1)})$ and $\text{Var}(S^{(0)})$ are inflated by the
+common error, which hurts PPI++/D-T through the $\lambda^2 \text{Var}(S)/m$
+term. But $\text{Var}(S^{(1)} - S^{(0)})$ cancels the common error, so
+the DiP unobserved term $\lambda^2 \text{Var}(S^{(1)} - S^{(0)})/m$ is much
+smaller.
+
+
+## Scenario 5: Common-Mode Error + Heterogeneous Quality 
+
+Combine the advantages of scenarios 3 and 4: predictions share common-mode
+error (favoring DiP) but quality differs across arms (favoring D-T). D-T DiP
+should beat both D-T and DiP++.
+
+```{r dgp-common-mode-heterogeneous}
+dgp_common_mode_heterogeneous <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 200; m <- 500
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  Y0_obs <- rnorm(n)
+  Y1_obs <- Y0_obs + true_tau
+  Y <- D_obs * Y1_obs + (1 - D_obs) * Y0_obs
+
+  common_obs <- rnorm(n, 0, 1.2)
+  # Treatment arm: good signal; control arm: weak signal
+  S1_obs <- 0.9 * Y1_obs + common_obs + rnorm(n, 0, 0.3)
+  S0_obs <- 0.2 * Y0_obs + common_obs + rnorm(n, 0, 0.5)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  Y0_unobs <- rnorm(m)
+  Y1_unobs <- Y0_unobs + true_tau
+  common_unobs <- rnorm(m, 0, 1.2)
+  S1_unobs <- 0.9 * Y1_unobs + common_unobs + rnorm(m, 0, 0.3)
+  S0_unobs <- 0.2 * Y0_unobs + common_unobs + rnorm(m, 0, 0.5)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-5}
+comp5 <- run_comparison(dgp_common_mode_heterogeneous)
+print_comparison(comp5, "Scenario 5: Common-Mode Error + Heterogeneous Quality")
+```
+
+**Why**: D-T DiP can set $\lambda_1$ large (good treatment predictions) and
+$\lambda_0$ small (noisy control predictions), while still exploiting the
+common-mode cancellation in $\lambda_1 S^{(1)} - \lambda_0 S^{(0)}$.
+
+
+## Scenario 6: Near-Perfect Predictions 
+
+When predictions are nearly unbiased and have very high correlation with $Y$
+($\rho \approx 0.995$), the optimal $\lambda^*$ is close to 1. With small $n$
+(few observations per cross-fitting fold), estimating $\lambda$ adds
+finite-sample noise. DiP with fixed $\lambda = 1$ dominates: it avoids
+the lambda-estimation cost while retaining the structural advantage of
+using all $m$ unobserved units.
+
+```{r dgp-near-perfect}
+dgp_near_perfect <- function(seed) {
+  set.seed(seed)
+  true_tau <- 0.5
+  n <- 100; m <- 500
+
+  D_obs <- rep(c(1, 0), each = n / 2)
+  Y0_obs <- rnorm(n)
+  Y1_obs <- Y0_obs + true_tau
+  Y <- D_obs * Y1_obs + (1 - D_obs) * Y0_obs
+
+  # Near-perfect predictions: rho = 1/sqrt(1 + 0.01) ~ 0.995
+  S1_obs <- Y1_obs + rnorm(n, 0, 0.1)
+  S0_obs <- Y0_obs + rnorm(n, 0, 0.1)
+
+  D_unobs <- rep(c(1, 0), each = m / 2)
+  Y0_unobs <- rnorm(m)
+  Y1_unobs <- Y0_unobs + true_tau
+  S1_unobs <- Y1_unobs + rnorm(m, 0, 0.1)
+  S0_unobs <- Y0_unobs + rnorm(m, 0, 0.1)
+
+  list(
+    obs_df = data.frame(Y = Y, D = D_obs, S0 = S0_obs, S1 = S1_obs),
+    unobs_df = data.frame(D = D_unobs, S0 = S0_unobs, S1 = S1_unobs),
+    true_tau = true_tau
+  )
+}
+```
+
+```{r run-scenario-6}
+comp6 <- run_comparison(dgp_near_perfect)
+print_comparison(comp6, "Scenario 6: Near-Perfect Predictions")
+```
+
+**Why**: When $\lambda^* \approx 1$, estimating $\lambda$ via cross-fitting
+(with only $n/2$ observations per fold) adds finite-sample variance without
+meaningful bias reduction. DiP with fixed $\lambda = 1$ beats DiP++ and D-T DiP
+by avoiding this estimation cost. Meanwhile, DiP dominates all PPI-style
+estimators (GREG, PPI++, D-T) by a large margin thanks to the structural
+advantage of using all $m$ unobserved units rather than splitting by arm.
+
+
+## Summary Table
+
+```{r summary-table}
+scenarios <- list(
+  "1: Poor predictions"        = comp1,
+  "2: Neg corr predictions"    = comp2,
+  "3: Heterogeneous quality"   = comp3,
+  "4: High common-mode error"  = comp4, 
+  "5: Common-mode + hetero"    = comp5,
+  "6: Near-perfect"            = comp6
+)
+
+summary_df <- do.call(rbind, lapply(names(scenarios), function(nm) {
+  comp <- scenarios[[nm]]
+  best_idx <- which.min(comp$mse)
+  data.frame(
+    scenario = nm,
+    winner = comp$estimator[best_idx],
+    winner_mse = comp$mse[best_idx],
+    winner_var = comp$variance[best_idx],
+    dim_var = comp$variance[comp$estimator == "dim"],
+    reduction_pct = round(
+      (1 - comp$variance[best_idx] / comp$variance[comp$estimator == "dim"]) * 100, 1
+    ),
+    stringsAsFactors = FALSE
+  )
+}))
+
+knitr::kable(summary_df,
+             col.names = c("Scenario", "Best Estimator", "Best MSE",
+                           "Best Var", "DiM Var", "Var Reduction (%)"),
+             digits = 5,
+             caption = "Which estimator achieves the lowest Monte Carlo MSE under each DGP?")
+```
+

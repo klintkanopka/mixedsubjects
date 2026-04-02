@@ -100,6 +100,17 @@ bootstrap_variance <- function(data,
     # Create bootstrap observed data
     boot_obs <- rbind(obs[boot_treated, ], obs[boot_control, ])
 
+    # TODO: Bug — unobserved resampling not stratified by arm (discuss with team)
+    #
+    # For PPI++ and D-T estimators, unobserved data is split by arm (D==1 vs
+    # D==0). Resampling the whole pool together can shift the m1/m0 ratio in
+    # each bootstrap sample. Should stratify like the observed data:
+    #   boot_unobs <- rbind(
+    #     unobs[sample(which(unobs$D==1), m1, replace=TRUE), ],
+    #     unobs[sample(which(unobs$D==0), m0, replace=TRUE), ]
+    #   )
+    # Not an issue for DiP-type estimators which pool all unobserved units.
+
     # Resample unlabeled
     if (m > 0) {
       boot_unobs_idx <- sample(1:m, m, replace = TRUE)
@@ -128,7 +139,7 @@ bootstrap_variance <- function(data,
       boot_result <- run_estimator(boot_data, estimator, n_folds)
       boot_estimates[b] <- boot_result$estimate
     }, error = function(e) {
-      boot_estimates[b] <- NA
+      boot_estimates[b] <<- NA
     })
   }
 

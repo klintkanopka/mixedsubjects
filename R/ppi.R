@@ -224,6 +224,14 @@ compute_ppi_estimate <- function(obs, unobs, treated_idx, control_idx, lambda) {
 }
 
 #' Compute PPI++ variance using delta method
+#'
+#' The cross-fit estimator is theta = (1/K) * sum_k theta_k, where each
+#' theta_k = L_k + U. L_k is the labeled component (independent across folds,
+#' using n_d/K obs each) and U is the shared unobserved component (same for
+#' all folds). Therefore:
+#'   Var(theta) = (1/K^2) * sum_k Var(L_k) + Var(U)
+#'              = labeled_var / n_d + lambda^2 * Var(S_d) / m_d
+#' The labeled terms' K factors cancel; the unobserved term is NOT divided by K.
 #' @keywords internal
 compute_ppi_variance <- function(data, lambda, n_folds) {
   obs <- data$observed
@@ -235,10 +243,6 @@ compute_ppi_variance <- function(data, lambda, n_folds) {
   m1 <- sum(unobs$D == 1)
   m0 <- sum(unobs$D == 0)
 
-  # Per-fold sizes
-  n1_k <- n1 / n_folds
-  n0_k <- n0 / n_folds
-
   # Get data
   Y1 <- obs$Y[obs$D == 1]
   Y0 <- obs$Y[obs$D == 0]
@@ -248,30 +252,19 @@ compute_ppi_variance <- function(data, lambda, n_folds) {
   S0_unobs <- unobs$S0[unobs$D == 0]
 
   # Variance components
-  var_Y1 <- var(Y1)
-  var_Y0 <- var(Y0)
-  var_S1_obs <- var(S1_obs)
-  var_S0_obs <- var(S0_obs)
   var_S1_unobs <- var(S1_unobs)
   var_S0_unobs <- var(S0_unobs)
-  cov_YS_1 <- cov(Y1, S1_obs)
-  cov_YS_0 <- cov(Y0, S0_obs)
 
-  # Arm 1 variance (using per-fold sample size for labeled part)
-  var_1 <- var_Y1 / n1_k +
-           lambda^2 * var_S1_obs / n1_k +
-           lambda^2 * var_S1_unobs / m1 -
-           2 * lambda * cov_YS_1 / n1_k
+  # Labeled component per arm: [Var(Y) + lambda^2*Var(S) - 2*lambda*Cov(Y,S)] / n_d
+  var_1_labeled <- (var(Y1) + lambda^2 * var(S1_obs) - 2 * lambda * cov(Y1, S1_obs)) / n1
+  var_0_labeled <- (var(Y0) + lambda^2 * var(S0_obs) - 2 * lambda * cov(Y0, S0_obs)) / n0
 
-  # Arm 0 variance
-  var_0 <- var_Y0 / n0_k +
-           lambda^2 * var_S0_obs / n0_k +
-           lambda^2 * var_S0_unobs / m0 -
-           2 * lambda * cov_YS_0 / n0_k
+  # Unobserved component per arm: lambda^2 * Var(S_d) / m_d (shared, not divided by K)
+  var_1_unobs <- lambda^2 * var_S1_unobs / m1
+  var_0_unobs <- lambda^2 * var_S0_unobs / m0
 
-  # Total variance (accounting for cross-fit averaging)
-  # For K=2 folds with equal weights, the variance is approximately halved
-  variance <- (var_1 + var_0) / n_folds
+  # Total variance
+  variance <- (var_1_labeled + var_1_unobs) + (var_0_labeled + var_0_unobs)
 
   return(max(variance, 0))  # Ensure non-negative
 }

@@ -227,6 +227,10 @@ compute_dt_estimate <- function(obs, unobs, treated_idx, control_idx,
 }
 
 #' Compute D-T variance using delta method
+#'
+#' See compute_ppi_variance for the derivation. The labeled terms' K factors
+#' cancel when averaging across folds; the unobserved term is shared across
+#' folds and is NOT divided by K.
 #' @keywords internal
 compute_dt_variance <- function(data, lambda1, lambda0, n_folds) {
   obs <- data$observed
@@ -238,10 +242,6 @@ compute_dt_variance <- function(data, lambda1, lambda0, n_folds) {
   m1 <- sum(unobs$D == 1)
   m0 <- sum(unobs$D == 0)
 
-  # Per-fold sizes
-  n1_k <- n1 / n_folds
-  n0_k <- n0 / n_folds
-
   # Get data
   Y1 <- obs$Y[obs$D == 1]
   Y0 <- obs$Y[obs$D == 0]
@@ -250,30 +250,16 @@ compute_dt_variance <- function(data, lambda1, lambda0, n_folds) {
   S1_unobs <- unobs$S1[unobs$D == 1]
   S0_unobs <- unobs$S0[unobs$D == 0]
 
-  # Variance components
-  var_Y1 <- var(Y1)
-  var_Y0 <- var(Y0)
-  var_S1_obs <- var(S1_obs)
-  var_S0_obs <- var(S0_obs)
-  var_S1_unobs <- var(S1_unobs)
-  var_S0_unobs <- var(S0_unobs)
-  cov_YS_1 <- cov(Y1, S1_obs)
-  cov_YS_0 <- cov(Y0, S0_obs)
+  # Labeled component per arm: [Var(Y) + lambda^2*Var(S) - 2*lambda*Cov(Y,S)] / n_d
+  var_1_labeled <- (var(Y1) + lambda1^2 * var(S1_obs) - 2 * lambda1 * cov(Y1, S1_obs)) / n1
+  var_0_labeled <- (var(Y0) + lambda0^2 * var(S0_obs) - 2 * lambda0 * cov(Y0, S0_obs)) / n0
 
-  # Arm 1 variance (using arm-specific lambda1)
-  var_1 <- var_Y1 / n1_k +
-           lambda1^2 * var_S1_obs / n1_k +
-           lambda1^2 * var_S1_unobs / m1 -
-           2 * lambda1 * cov_YS_1 / n1_k
+  # Unobserved component per arm: lambda_d^2 * Var(S_d) / m_d (shared, not divided by K)
+  var_1_unobs <- lambda1^2 * var(S1_unobs) / m1
+  var_0_unobs <- lambda0^2 * var(S0_unobs) / m0
 
-  # Arm 0 variance (using arm-specific lambda0)
-  var_0 <- var_Y0 / n0_k +
-           lambda0^2 * var_S0_obs / n0_k +
-           lambda0^2 * var_S0_unobs / m0 -
-           2 * lambda0 * cov_YS_0 / n0_k
-
-  # Total variance (accounting for cross-fit averaging)
-  variance <- (var_1 + var_0) / n_folds
+  # Total variance
+  variance <- (var_1_labeled + var_1_unobs) + (var_0_labeled + var_0_unobs)
 
   return(max(variance, 0))  # Ensure non-negative
 }

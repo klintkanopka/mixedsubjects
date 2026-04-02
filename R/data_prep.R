@@ -5,8 +5,8 @@
 #'
 #' Creates a validated data object for mixed-subjects design estimation.
 #' Accepts either a single combined dataframe or two separate dataframes
-#' for observed and unobserved units. Column names can be auto-detected,
-#' explicitly specified, or provided separately for each dataframe.
+#' for observed and unobserved units. Column names default to "Y", "D",
+#' "S0", "S1" and can be overridden explicitly.
 #'
 #' @param data A combined dataframe containing both observed and unobserved units.
 #'   Observed units have non-missing Y values; unobserved units have Y = NA.
@@ -16,16 +16,10 @@
 #'   should be NULL.
 #' @param unobserved A dataframe of unobserved (unlabeled) units with columns
 #'   for predictions S0/S1 and treatment D (no Y column needed).
-#' @param outcome Name of the outcome column, or NULL for auto-detection.
-#'   Common patterns detected: "Y", "y", "outcome", "response", "dependent".
-#' @param treatment Name of the treatment column, or NULL for auto-detection.
-#'   Common patterns detected: "D", "d", "treatment", "treat", "treated", "T", "W", "w", "Z", "z".
-#' @param pred_control Name of the control prediction column, or NULL for auto-detection.
-#'   Common patterns detected: "S0", "s0", "S_0", "S^0", "pred_control", "pred_0",
-#'   "prediction_control", "prediction_0", "yhat_control", "yhat_0".
-#' @param pred_treated Name of the treatment prediction column, or NULL for auto-detection.
-#'   Common patterns detected: "S1", "s1", "S_1", "S^1", "pred_treated", "pred_1",
-#'   "prediction_treated", "prediction_1", "yhat_treated", "yhat_1".
+#' @param outcome Name of the outcome column. Default: "Y".
+#' @param treatment Name of the treatment column. Default: "D".
+#' @param pred_control Name of the control prediction column. Default: "S0".
+#' @param pred_treated Name of the treatment prediction column. Default: "S1".
 #' @param obs_outcome Outcome column name for observed data only (overrides \code{outcome}).
 #' @param obs_treatment Treatment column name for observed data only (overrides \code{treatment}).
 #' @param obs_pred_control Control prediction column for observed data only.
@@ -48,10 +42,11 @@
 #' @details
 #' The function supports flexible column name specification:
 #'
-#' \strong{Auto-detection:}
-#' If column names are not specified (NULL), the function will search for
-#' common patterns. For example, columns named "outcome", "Y", "response",
-#' or "dependent" will be recognized as the outcome variable.
+#' \strong{Default column names:}
+#' By default, the function expects columns named "Y" (outcome), "D" (treatment),
+#' "S0" (control prediction), and "S1" (treatment prediction). Override these
+#' using the \code{outcome}, \code{treatment}, \code{pred_control}, and
+#' \code{pred_treated} arguments.
 #'
 #' \strong{Global specification:}
 #' Use \code{outcome}, \code{treatment}, \code{pred_control}, \code{pred_treated}
@@ -71,7 +66,7 @@
 #' Provide two separate dataframes via \code{observed} and \code{unobserved}.
 #'
 #' @examples
-#' # Auto-detection with standard column names
+#' # Default column names (Y, D, S0, S1)
 #' obs_df <- data.frame(
 #'   Y = c(1.2, 0.8, 1.5, 0.9),
 #'   S0 = c(1.0, 0.7, 1.3, 0.8),
@@ -130,10 +125,10 @@ msd_data <- function(data = NULL,
                      observed = NULL,
                      unobserved = NULL,
                      # Global column names (apply to both)
-                     outcome = NULL,
-                     treatment = NULL,
-                     pred_control = NULL,
-                     pred_treated = NULL,
+                     outcome = "Y",
+                     treatment = "D",
+                     pred_control = "S0",
+                     pred_treated = "S1",
                      # Per-dataframe overrides for observed
                      obs_outcome = NULL,
                      obs_treatment = NULL,
@@ -157,26 +152,20 @@ has_combined <- !is.null(data)
     stop("Must provide either 'data' or 'observed' argument.")
   }
 
-  # Resolve column names for observed data
-  if (has_combined) {
-    obs_source <- data
-  } else {
-    obs_source <- observed
-  }
-
-  # Get effective column names for observed (per-df overrides global)
+  # Resolve column names for observed data (per-df overrides global)
   y_col <- obs_outcome %||% outcome
   d_col_obs <- obs_treatment %||% treatment
   s0_col_obs <- obs_pred_control %||% pred_control
   s1_col_obs <- obs_pred_treated %||% pred_treated
 
-  # Auto-detect if not specified
-  y_col <- detect_column(obs_source, y_col, "outcome")
-  d_col_obs <- detect_column(obs_source, d_col_obs, "treatment")
-  s0_col_obs <- detect_column(obs_source, s0_col_obs, "pred_control", required = FALSE)
-  s1_col_obs <- detect_column(obs_source, s1_col_obs, "pred_treated", required = FALSE)
+  # Validate observed column names exist
+  obs_source <- if (has_combined) data else observed
+  validate_column(obs_source, y_col, "outcome")
+  validate_column(obs_source, d_col_obs, "treatment")
+  s0_col_obs <- validate_column(obs_source, s0_col_obs, "pred_control", required = FALSE)
+  s1_col_obs <- validate_column(obs_source, s1_col_obs, "pred_treated", required = FALSE)
 
-  # Get effective column names for unobserved
+  # Resolve column names for unobserved data
   unobs_source <- if (has_combined) data else unobserved
 
   if (!is.null(unobs_source)) {
@@ -184,13 +173,9 @@ has_combined <- !is.null(data)
     s0_col_unobs <- unobs_pred_control %||% pred_control
     s1_col_unobs <- unobs_pred_treated %||% pred_treated
 
-    # For unobserved, try to match observed column names first, then auto-detect
-    d_col_unobs <- detect_column(unobs_source, d_col_unobs, "treatment",
-                                  fallback = d_col_obs)
-    s0_col_unobs <- detect_column(unobs_source, s0_col_unobs, "pred_control",
-                                   required = FALSE, fallback = s0_col_obs)
-    s1_col_unobs <- detect_column(unobs_source, s1_col_unobs, "pred_treated",
-                                   required = FALSE, fallback = s1_col_obs)
+    validate_column(unobs_source, d_col_unobs, "treatment")
+    s0_col_unobs <- validate_column(unobs_source, s0_col_unobs, "pred_control", required = FALSE)
+    s1_col_unobs <- validate_column(unobs_source, s1_col_unobs, "pred_treated", required = FALSE)
   } else {
     d_col_unobs <- s0_col_unobs <- s1_col_unobs <- NULL
   }
@@ -229,75 +214,23 @@ has_combined <- !is.null(data)
 #' @keywords internal
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
-#' Detect column name with auto-detection
+#' Validate that a column exists in a dataframe
 #'
-#' @param df Dataframe to search
-#' @param specified User-specified column name (or NULL)
-#' @param type Type of column: "outcome", "treatment", "pred_control", "pred_treated"
+#' @param df Dataframe to check
+#' @param col_name Column name to validate
+#' @param type Type of column (for error messages): "outcome", "treatment",
+#'   "pred_control", "pred_treated"
 #' @param required If TRUE, error when not found; if FALSE, return NULL
-#' @param fallback Column name to try if auto-detection fails
-#' @return Column name or NULL
+#' @return The column name if found, or NULL if not required and not found
 #' @keywords internal
-detect_column <- function(df, specified, type, required = TRUE, fallback = NULL) {
-  # If user specified a name, validate and return it
-
-  if (!is.null(specified)) {
-    if (specified %in% names(df)) {
-      return(specified)
-    } else if (required) {
-      stop("Column '", specified, "' not found in data. ",
-           "Available columns: ", paste(names(df), collapse = ", "))
-    } else {
-      return(NULL)
-    }
+validate_column <- function(df, col_name, type, required = TRUE) {
+  if (!is.null(col_name) && col_name %in% names(df)) {
+    return(col_name)
   }
 
-  # Try fallback first (e.g., same name as observed)
-  if (!is.null(fallback) && fallback %in% names(df)) {
-    return(fallback)
-  }
-
-  # Auto-detection patterns
-  patterns <- switch(type,
-    outcome = c("^Y$", "^y$", "^outcome$", "^response$", "^dependent$",
-                "^Outcome$", "^Response$", "^DV$", "^dv$"),
-    treatment = c("^D$", "^d$", "^treatment$", "^treat$", "^treated$",
-                  "^Treatment$", "^Treat$", "^Treated$",
-                  "^T$", "^W$", "^w$", "^Z$", "^z$", "^assignment$"),
-    pred_control = c("^S0$", "^s0$", "^S_0$", "^S\\^0$", "^S0_", "^s0_",
-                     "^pred_control$", "^pred_0$", "^pred0$",
-                     "^prediction_control$", "^prediction_0$",
-                     "^yhat_control$", "^yhat_0$", "^yhat0$",
-                     "^S_control$", "^s_control$", "^Scontrol$",
-                     "_S0$", "_s0$", "_control$", "control_pred"),
-    pred_treated = c("^S1$", "^s1$", "^S_1$", "^S\\^1$", "^S1_", "^s1_",
-                     "^pred_treated$", "^pred_1$", "^pred1$",
-                     "^prediction_treated$", "^prediction_1$",
-                     "^yhat_treated$", "^yhat_1$", "^yhat1$",
-                     "^S_treated$", "^s_treated$", "^Streated$",
-                     "_S1$", "_s1$", "_treated$", "treated_pred"),
-    character(0)
-  )
-
-  # Search for matching column
-  col_names <- names(df)
-  for (pattern in patterns) {
-    matches <- grep(pattern, col_names, value = TRUE, ignore.case = FALSE)
-    if (length(matches) == 1) {
-      return(matches[1])
-    } else if (length(matches) > 1) {
-      # Multiple matches - use first but warn
-      message("Multiple columns match pattern for ", type, ": ",
-              paste(matches, collapse = ", "), ". Using '", matches[1], "'.")
-      return(matches[1])
-    }
-  }
-
-  # Not found
   if (required) {
-    stop("Could not auto-detect ", type, " column. ",
-         "Please specify explicitly. Available columns: ",
-         paste(col_names, collapse = ", "))
+    stop("Column '", col_name, "' not found in data. ",
+         "Available columns: ", paste(names(df), collapse = ", "))
   }
 
   return(NULL)
@@ -371,7 +304,7 @@ process_separate_data <- function(observed_df, unobserved_df,
         unobserved$S0 <- unobserved_df[[s0_col_unobs]]
       } else {
         warning("S0 predictions not found in unobserved data. ",
-                "Looked for column: ", s0_col_unobs %||% "(auto-detect failed)")
+                "Looked for column: ", s0_col_unobs %||% "(none specified)")
         has_S0 <- FALSE
       }
     }
@@ -381,7 +314,7 @@ process_separate_data <- function(observed_df, unobserved_df,
         unobserved$S1 <- unobserved_df[[s1_col_unobs]]
       } else {
         warning("S1 predictions not found in unobserved data. ",
-                "Looked for column: ", s1_col_unobs %||% "(auto-detect failed)")
+                "Looked for column: ", s1_col_unobs %||% "(none specified)")
         has_S1 <- FALSE
       }
     }

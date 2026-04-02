@@ -42,6 +42,7 @@
 #'   D = c(1, 1, 0, 0, 1, 0, 1, 0)
 #' )
 #' msd <- msd_data(observed = obs_df)
+#' 
 #' result <- msd_dim(msd)
 #' print(result)
 #'

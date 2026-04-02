@@ -1,3 +1,15 @@
+# TODO: Naming inconsistency with paper (discuss with team)
+# This function is named "GREG" but implements lambda = 1 (untuned), which
+# corresponds to Row 2 of Table 1 in the paper (PPI / DSL), NOT the GREG
+# estimator. In the paper, GREG is grouped with PPI++ (Row 3) as the
+# singly-tuned estimator where lambda is estimated via cross-fitting —
+# which is what msd_ppi() actually implements.
+#
+# Options:
+#   1. Rename msd_greg -> msd_dsl (or msd_ppi_base) to match paper Row 2,
+#      and rename msd_ppi -> msd_greg (or alias both) to match paper Row 3.
+#   2. Keep current names but update documentation to clarify the mismatch.
+
 #' @title GREG Estimator
 #' @description Generalized Regression (GREG) calibration estimator for ATE.
 
