@@ -15,7 +15,7 @@ Description: Implements seven estimators for average treatment effect (ATE)
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.3
 Imports:
     stats
 Suggests:

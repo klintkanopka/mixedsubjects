@@ -433,7 +433,7 @@ All estimators use the delta-method for variance estimation by default. This pro
 
 For robustness, you can also use the fold-respecting bootstrap:
 
-```{r bootstrap-example, cache=TRUE}
+```{r bootstrap-example}
 # Bootstrap variance for D-T DiP
 boot_result <- bootstrap_variance(
   msd,
