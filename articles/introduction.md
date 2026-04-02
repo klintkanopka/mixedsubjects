@@ -97,14 +97,17 @@ observed_df$S1 <- 0.6 * observed_df$Y + rnorm(n_observed, 0, 0.5)
 observed_df$S0 <- 0.5 * observed_df$Y + rnorm(n_observed, 0, 0.6)
 
 # Unobserved units (only have predictions, no actual Y)
+# Predictions must come from the same pipeline as observed (Assumption C: Random Labeling)
 n_unobserved <- 1000
+D_unobs <- rep(c(1, 0), each = n_unobserved / 2)
+latent_Y <- ifelse(D_unobs == 1,
+                   rnorm(n_unobserved / 2, mean = true_ate, sd = 1),
+                   rnorm(n_unobserved / 2, mean = 0, sd = 1))
 unobserved_df <- data.frame(
-  D = rep(c(1, 0), each = n_unobserved / 2),
-  S1 = rnorm(n_unobserved, mean = 0.15, sd = 0.7),
-  S0 = rnorm(n_unobserved, mean = 0, sd = 0.7)
+  D = D_unobs,
+  S1 = 0.6 * latent_Y + rnorm(n_unobserved, 0, 0.5),
+  S0 = 0.5 * latent_Y + rnorm(n_unobserved, 0, 0.6)
 )
-# Add correlation between S1 and S0
-unobserved_df$S1 <- unobserved_df$S1 + 0.4 * unobserved_df$S0
 ```
 
 ### Creating an MSD Data Object
@@ -167,12 +170,12 @@ cat("  95% CI: [", round(result_dim$ci_lower, 3), ", ",
 cat("D-T DiP:\n")
 #> D-T DiP:
 cat("  Estimate:", round(result_dt_dip$estimate, 3), "\n")
-#>   Estimate: 0.31
+#>   Estimate: 0.168
 cat("  SE:", round(result_dt_dip$se, 3), "\n")
-#>   SE: 0.096
+#>   SE: 0.097
 cat("  95% CI: [", round(result_dt_dip$ci_lower, 3), ", ",
     round(result_dt_dip$ci_upper, 3), "]\n")
-#>   95% CI: [ 0.122 ,  0.499 ]
+#>   95% CI: [ -0.022 ,  0.357 ]
 ```
 
 Notice that the D-T DiP estimator has a **smaller standard error** than
@@ -277,16 +280,9 @@ print(msd_combined)
 
 ### Flexible Column Names
 
-The package automatically detects common column name patterns, so you
-don’t need to rename your columns. For example:
-
-- **Outcome**: `Y`, `y`, `outcome`, `response`, `dependent`
-- **Treatment**: `D`, `d`, `treatment`, `treat`, `treated`, `T`, `W`
-- **Predictions**: `S0`, `s0`, `pred_control`, `prediction_0`, `yhat_0`,
-  etc.
-
-If your column names don’t match these patterns, you can specify them
-explicitly:
+By default, the package expects columns named `Y` (outcome), `D`
+(treatment), `S0` (control prediction), and `S1` (treatment prediction).
+If your columns use different names, specify them explicitly:
 
 ``` r
 # Custom column names
@@ -396,9 +392,9 @@ print(result)
 #> =================================
 #> Estimator: GREG (lambda = 1) 
 #> 
-#> Point Estimate:  0.3166 
-#> Standard Error:  0.1054 
-#> 95% CI:         [0.1100, 0.5232]
+#> Point Estimate:  0.3307 
+#> Standard Error:  0.1073 
+#> 95% CI:         [0.1203, 0.5410]
 #> 
 #> Tuning Parameters:
 #>   lambda:        1.0000 
@@ -426,12 +422,12 @@ print(result)
 #> =================================
 #> Estimator: PPI++ (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.3485 
-#> Standard Error:  0.0983 
-#> 95% CI:         [0.1559, 0.5411]
+#> Point Estimate:  0.3617 
+#> Standard Error:  0.1033 
+#> 95% CI:         [0.1593, 0.5642]
 #> 
 #> Tuning Parameters:
-#>   lambda:        0.8199 
+#>   lambda:        0.8222 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -456,13 +452,13 @@ print(result)
 #> =================================
 #> Estimator: D-T (Doubly-Tuned, cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.3410 
-#> Standard Error:  0.0983 
-#> 95% CI:         [0.1484, 0.5336]
+#> Point Estimate:  0.3457 
+#> Standard Error:  0.1037 
+#> 95% CI:         [0.1425, 0.5489]
 #> 
 #> Tuning Parameters:
-#>   lambda_1 (treatment):  0.8764 
-#>   lambda_0 (control):    0.7941 
+#>   lambda_1 (treatment):  0.9039 
+#>   lambda_0 (control):    0.7806 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -488,9 +484,9 @@ print(result)
 #> =================================
 #> Estimator: DiP (Difference-in-Predictions, lambda = 1) 
 #> 
-#> Point Estimate:  0.2863 
-#> Standard Error:  0.0978 
-#> 95% CI:         [0.0947, 0.4779]
+#> Point Estimate:  0.1454 
+#> Standard Error:  0.0976 
+#> 95% CI:         [-0.0459, 0.3367]
 #> 
 #> Tuning Parameters:
 #>   lambda:        1.0000 
@@ -514,12 +510,12 @@ print(result)
 #> =================================
 #> Estimator: DiP++ (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.3108 
-#> Standard Error:  0.0953 
-#> 95% CI:         [0.1240, 0.4977]
+#> Point Estimate:  0.1891 
+#> Standard Error:  0.0965 
+#> 95% CI:         [0.0000, 0.3782]
 #> 
 #> Tuning Parameters:
-#>   lambda:        0.8790 
+#>   lambda:        0.8804 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -540,13 +536,13 @@ print(result)
 #> =================================
 #> Estimator: D-T DiP (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.2887 
-#> Standard Error:  0.0961 
-#> 95% CI:         [0.1003, 0.4771]
+#> Point Estimate:  0.1571 
+#> Standard Error:  0.0966 
+#> 95% CI:         [-0.0323, 0.3465]
 #> 
 #> Tuning Parameters:
-#>   lambda_1 (treatment):  1.0055 
-#>   lambda_0 (control):    0.8666 
+#>   lambda_1 (treatment):  0.9944 
+#>   lambda_0 (control):    0.8544 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -566,20 +562,20 @@ print(all_results)
 #> 
 #>                                    Estimator Estimate     SE 95% CI Lower
 #>                    Difference-in-Means (DiM)   0.4980 0.1330       0.2373
-#>                            GREG (lambda = 1)   0.3166 0.1054       0.1100
-#>                       PPI++ (cross-fit, K=2)   0.3388 0.0983       0.1461
-#>           D-T (Doubly-Tuned, cross-fit, K=2)   0.3450 0.0983       0.1524
-#>  DiP (Difference-in-Predictions, lambda = 1)   0.2863 0.0978       0.0947
-#>                       DiP++ (cross-fit, K=2)   0.3273 0.0953       0.1404
-#>                     D-T DiP (cross-fit, K=2)   0.2827 0.0961       0.0943
+#>                            GREG (lambda = 1)   0.3307 0.1073       0.1203
+#>                       PPI++ (cross-fit, K=2)   0.3664 0.1032       0.1643
+#>           D-T (Doubly-Tuned, cross-fit, K=2)   0.3585 0.1034       0.1557
+#>  DiP (Difference-in-Predictions, lambda = 1)   0.1454 0.0976      -0.0459
+#>                       DiP++ (cross-fit, K=2)   0.1893 0.0965       0.0002
+#>                     D-T DiP (cross-fit, K=2)   0.1772 0.0966      -0.0121
 #>  95% CI Upper
 #>        0.7586
-#>        0.5232
-#>        0.5314
-#>        0.5377
-#>        0.4779
-#>        0.5141
-#>        0.4710
+#>        0.5410
+#>        0.5686
+#>        0.5612
+#>        0.3367
+#>        0.3785
+#>        0.3665
 ```
 
 ## Choosing the Right Estimator
@@ -613,7 +609,7 @@ You can check the correlation in your pilot data:
 
 ``` r
 cor(unobserved_df$S1, unobserved_df$S0)
-#> [1] 0.4068407
+#> [1] 0.52053
 ```
 
 A positive correlation (which is common) means DiP estimators will
@@ -641,9 +637,9 @@ boot_result <- bootstrap_variance(
 )
 
 cat("Delta-method SE:", round(result_dt_dip$se, 4), "\n")
-#> Delta-method SE: 0.096
+#> Delta-method SE: 0.0966
 cat("Bootstrap SE:", round(boot_result$se, 4), "\n")
-#> Bootstrap SE: 0.0946
+#> Bootstrap SE: 0.0962
 ```
 
 The bootstrap is computationally more expensive but provides a useful
@@ -691,7 +687,7 @@ print(design)
 #> 
 #> Expected Performance:
 #>   Variance:  0.0019 
-#>   SE:        0.0434 
+#>   SE:        0.0431 
 #> 
 #> Budget:
 #>   Total:    $5,000
@@ -706,8 +702,8 @@ print(design)
 #>        PPI   960   20000 0.0439
 #>         DT   960   20000 0.0438
 #>        DIP   960   10000 0.0438
-#>     DIP_PP   970    7500 0.0435
-#>     DT_DIP   970    7500 0.0434
+#>     DIP_PP   970    7500 0.0434
+#>     DT_DIP   970    7500 0.0431
 ```
 
 ### Interpreting the Results
@@ -896,9 +892,9 @@ If you use this package in your research, please cite:
 
 ``` r
 sessionInfo()
-#> R version 4.5.2 (2025-10-31)
+#> R version 4.5.3 (2026-03-11)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.3 LTS
+#> Running under: Ubuntu 24.04.4 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -921,10 +917,10 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          codetools_0.2-20 
-#>  [5] fastmap_1.2.0     xfun_0.56         cachem_1.1.0      knitr_1.51       
-#>  [9] htmltools_0.5.9   rmarkdown_2.30    lifecycle_1.0.5   cli_3.6.5        
-#> [13] sass_0.4.10       pkgdown_2.2.0     textshaping_1.0.4 jquerylib_0.1.4  
-#> [17] systemfonts_1.3.1 compiler_4.5.2    tools_4.5.2       ragg_1.5.0       
+#>  [5] fastmap_1.2.0     xfun_0.57         cachem_1.1.0      knitr_1.51       
+#>  [9] htmltools_0.5.9   rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.5        
+#> [13] sass_0.4.10       pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4  
+#> [17] systemfonts_1.3.2 compiler_4.5.3    tools_4.5.3       ragg_1.5.2       
 #> [21] evaluate_1.0.5    bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0   
-#> [25] rlang_1.1.7       fs_1.6.6
+#> [25] rlang_1.1.7       fs_2.0.1
 ```
