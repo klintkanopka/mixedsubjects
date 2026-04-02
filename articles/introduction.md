@@ -223,7 +223,9 @@ of estimators.
 
 ### Creating Your Data Object
 
-The `msd_data()` function accepts data in two formats:
+The
+[`msd_data()`](http://klintkanopka.com/mixedsubjects/reference/msd_data.md)
+function accepts data in two formats:
 
 **Option 1: Separate dataframes**
 
@@ -551,7 +553,9 @@ print(result)
 
 ### Comparing All Estimators
 
-Use `estimate_all()` to run all applicable estimators at once:
+Use
+[`estimate_all()`](http://klintkanopka.com/mixedsubjects/reference/estimate_all.md)
+to run all applicable estimators at once:
 
 ``` r
 all_results <- estimate_all(msd)
@@ -661,8 +665,10 @@ predictions** (estimated from pilot data)
 
 ### Using `optimal_design()`
 
-The `optimal_design()` function finds the allocation that minimizes
-expected variance given your budget constraints:
+The
+[`optimal_design()`](http://klintkanopka.com/mixedsubjects/reference/optimal_design.md)
+function finds the allocation that minimizes expected variance given
+your budget constraints:
 
 ``` r
 design <- optimal_design(
@@ -916,11 +922,11 @@ sessionInfo()
 #> [1] mixedsubjects_0.1.0
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          codetools_0.2-20 
-#>  [5] fastmap_1.2.0     xfun_0.57         cachem_1.1.0      knitr_1.51       
-#>  [9] htmltools_0.5.9   rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.5        
-#> [13] sass_0.4.10       pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4  
-#> [17] systemfonts_1.3.2 compiler_4.5.3    tools_4.5.3       ragg_1.5.2       
-#> [21] evaluate_1.0.5    bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0   
-#> [25] rlang_1.1.7       fs_2.0.1
+#>  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          fastmap_1.2.0    
+#>  [5] xfun_0.57         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  
+#>  [9] rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.5         sass_0.4.10      
+#> [13] pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.2
+#> [17] compiler_4.5.3    tools_4.5.3       ragg_1.5.2        evaluate_1.0.5   
+#> [21] bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0    rlang_1.1.7      
+#> [25] fs_2.0.1
 ```

@@ -33,7 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/introduction.html">Introduction to Mixed-Subjects Designs with the mixedsubjects Package</a></li>
+<li><a class="dropdown-item" href="../articles/compare_estimators.html">Comparing Estimators Under Different Data-Generating Processes</a></li>
+    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to Mixed-Subjects Designs with the mixedsubjects Package</a></li>
   </ul>
 </li>
       </ul>
@@ -229,7 +230,7 @@ would have answered</li>
 </h3>
 <p>First, we combine our data into an <code>msd_data</code> object:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span>observed <span class="op">=</span> <span class="va">observed_df</span>, unobserved <span class="op">=</span> <span class="va">unobserved_df</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span>observed <span class="op">=</span> <span class="va">observed_df</span>, unobserved <span class="op">=</span> <span class="va">unobserved_df</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Data</span></span>
@@ -264,10 +265,10 @@ would have answered</li>
 <p>Now let’s estimate the ATE using different estimators:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Classical difference-in-means (ignores predictions)</span></span>
-<span><span class="va">result_dim</span> <span class="op">&lt;-</span> <span class="fu">msd_dim</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<span><span class="va">result_dim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dim.html">msd_dim</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># D-T DiP (uses both predictions with arm-specific tuning)</span></span>
-<span><span class="va">result_dt_dip</span> <span class="op">&lt;-</span> <span class="fu">msd_dt_dip</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<span><span class="va">result_dt_dip</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt_dip.html">msd_dt_dip</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Difference-in-Means:\n"</span><span class="op">)</span></span>
@@ -356,10 +357,10 @@ family of estimators.</p>
 <div class="section level3">
 <h3 id="creating-your-data-object">Creating Your Data Object<a class="anchor" aria-label="anchor" href="#creating-your-data-object"></a>
 </h3>
-<p>The <code>msd_data()</code> function accepts data in two formats:</p>
+<p>The <code><a href="../reference/msd_data.html">msd_data()</a></code> function accepts data in two formats:</p>
 <p><strong>Option 1: Separate dataframes</strong></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span></span>
 <span>  observed <span class="op">=</span> <span class="va">observed_df</span>,    <span class="co"># Must have Y, D, and optionally S0, S1</span></span>
 <span>  unobserved <span class="op">=</span> <span class="va">unobserved_df</span> <span class="co"># Must have D and S0, S1 (no Y)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -375,7 +376,7 @@ family of estimators.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create msd_data object</span></span>
-<span><span class="va">msd_combined</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span>data <span class="op">=</span> <span class="va">combined_df</span><span class="op">)</span></span>
+<span><span class="va">msd_combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">combined_df</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msd_combined</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Data</span></span>
@@ -420,7 +421,7 @@ use different names, specify them explicitly:</p>
 <span>  claude_pred_trt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span></span>
+<span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span></span>
 <span>  observed <span class="op">=</span> <span class="va">my_data</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="st">"response_var"</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"is_treated"</span>,</span>
@@ -430,7 +431,7 @@ use different names, specify them explicitly:</p>
 <p>You can even use different column names for observed and unobserved
 data:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span></span>
 <span>  observed <span class="op">=</span> <span class="va">obs_df</span>,</span>
 <span>  unobserved <span class="op">=</span> <span class="va">unobs_df</span>,</span>
 <span>  obs_outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
@@ -453,11 +454,11 @@ in the estimator functions. This is similar to the syntax used by
 <span><span class="co"># Using custom column names directly in the estimator</span></span>
 <span></span>
 <span><span class="co"># For GREG-type estimators (single prediction per arm)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_greg</span><span class="op">(</span><span class="va">response</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">|</span> <span class="va">pred_1</span> <span class="op">+</span> <span class="va">pred_0</span>,</span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_greg.html">msd_greg</a></span><span class="op">(</span><span class="va">response</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">|</span> <span class="va">pred_1</span> <span class="op">+</span> <span class="va">pred_0</span>,</span>
 <span>                   observed <span class="op">=</span> <span class="va">obs_df</span>, unobserved <span class="op">=</span> <span class="va">unobs_df</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># For DiP-type estimators (both predictions)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dt_dip</span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">D</span> <span class="op">|</span> <span class="va">S1</span> <span class="op">+</span> <span class="va">S0</span>,</span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt_dip.html">msd_dt_dip</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">D</span> <span class="op">|</span> <span class="va">S1</span> <span class="op">+</span> <span class="va">S0</span>,</span>
 <span>                     observed <span class="op">=</span> <span class="va">obs_df</span>, unobserved <span class="op">=</span> <span class="va">unobs_df</span><span class="op">)</span></span></code></pre></div>
 <p>The formula has three parts: 1. <strong>Left of
 <code>~</code></strong>: The outcome variable name 2. <strong>Between
@@ -467,7 +468,7 @@ variable name(s)</p>
 <p>For DiM (which doesn’t use predictions), you can omit the prediction
 part:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dim</span><span class="op">(</span><span class="va">response</span> <span class="op">~</span> <span class="va">treated</span>, observed <span class="op">=</span> <span class="va">obs_df</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dim.html">msd_dim</a></span><span class="op">(</span><span class="va">response</span> <span class="op">~</span> <span class="va">treated</span>, observed <span class="op">=</span> <span class="va">obs_df</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -481,7 +482,7 @@ part:</p>
 <p>Use this as your baseline. It’s unbiased and requires no
 predictions.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dim</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dim.html">msd_dim</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -503,7 +504,7 @@ predictions.</p>
 <p>This adjusts the prediction mean by the observed “rectifier” (the
 average prediction error in the labeled data).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_greg</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_greg.html">msd_greg</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -533,7 +534,7 @@ this equals GREG. PPI++ estimates
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 to minimize variance using cross-fitting.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_ppi</span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_ppi.html">msd_ppi</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -563,7 +564,7 @@ for control):</p>
 <p>This is useful when prediction quality differs between treatment and
 control conditions.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dt</span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt.html">msd_dt</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -598,7 +599,7 @@ under treatment also tend to score high under control), the variance of
 their difference is smaller than the sum of their individual
 variances.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dip</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dip.html">msd_dip</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -623,7 +624,7 @@ variances.</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi><mo>+</mo><mo>+</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>λ</mi><mo>⋅</mo><msub><mover><mrow><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{DiP++}(\lambda) = \lambda \cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dip_pp</span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dip_pp.html">msd_dip_pp</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -648,7 +649,7 @@ variances.</p>
 tuning:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mo>−</mo><mi>T</mi><mspace width="0.222em"></mspace><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo>=</mo><msub><mover><mrow><msub><mi>λ</mi><mn>1</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>1</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{D-T\ DiP} = \overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 - \lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda_0\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dt_dip</span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt_dip.html">msd_dt_dip</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design Estimation</span></span>
@@ -670,10 +671,10 @@ tuning:</p>
 <div class="section level3">
 <h3 id="comparing-all-estimators">Comparing All Estimators<a class="anchor" aria-label="anchor" href="#comparing-all-estimators"></a>
 </h3>
-<p>Use <code>estimate_all()</code> to run all applicable estimators at
+<p>Use <code><a href="../reference/estimate_all.html">estimate_all()</a></code> to run all applicable estimators at
 once:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">all_results</span> <span class="op">&lt;-</span> <span class="fu">estimate_all</span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">all_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_all.html">estimate_all</a></span><span class="op">(</span><span class="va">msd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">all_results</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mixed-Subjects Design: All Estimators</span></span>
@@ -753,7 +754,7 @@ formulas derived in the accompanying paper.</p>
 <p>For robustness, you can also use the fold-respecting bootstrap:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Bootstrap variance for D-T DiP</span></span>
-<span><span class="va">boot_result</span> <span class="op">&lt;-</span> <span class="fu">bootstrap_variance</span><span class="op">(</span></span>
+<span><span class="va">boot_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap_variance.html">bootstrap_variance</a></span><span class="op">(</span></span>
 <span>  <span class="va">msd</span>,</span>
 <span>  estimator <span class="op">=</span> <span class="st">"dt_dip"</span>,</span>
 <span>  n_bootstrap <span class="op">=</span> <span class="fl">500</span>,</span>
@@ -793,10 +794,10 @@ prediction</strong> - The <strong>quality of predictions</strong>
 <div class="section level3">
 <h3 id="using-optimal_design">Using <code>optimal_design()</code><a class="anchor" aria-label="anchor" href="#using-optimal_design"></a>
 </h3>
-<p>The <code>optimal_design()</code> function finds the allocation that
+<p>The <code><a href="../reference/optimal_design.html">optimal_design()</a></code> function finds the allocation that
 minimizes expected variance given your budget constraints:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu">optimal_design</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optimal_design.html">optimal_design</a></span><span class="op">(</span></span>
 <span>  pilot_data <span class="op">=</span> <span class="va">msd</span>,          <span class="co"># Pilot study data</span></span>
 <span>  budget <span class="op">=</span> <span class="fl">5000</span>,             <span class="co"># Total budget in dollars</span></span>
 <span>  cost_human <span class="op">=</span> <span class="fl">5</span>,            <span class="co"># $5 per human response</span></span>
@@ -889,7 +890,7 @@ predictions:</p>
 <span><span class="va">pilot_unobserved</span><span class="op">$</span><span class="va">S1</span> <span class="op">&lt;-</span> <span class="fu">get_llm_predictions</span><span class="op">(</span><span class="va">pilot_unobserved</span>, condition <span class="op">=</span> <span class="st">"treatment"</span><span class="op">)</span></span>
 <span><span class="va">pilot_unobserved</span><span class="op">$</span><span class="va">S0</span> <span class="op">&lt;-</span> <span class="fu">get_llm_predictions</span><span class="op">(</span><span class="va">pilot_unobserved</span>, condition <span class="op">=</span> <span class="st">"control"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pilot_msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span>observed <span class="op">=</span> <span class="va">pilot_observed</span>, unobserved <span class="op">=</span> <span class="va">pilot_unobserved</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pilot_msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span>observed <span class="op">=</span> <span class="va">pilot_observed</span>, unobserved <span class="op">=</span> <span class="va">pilot_unobserved</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-2-estimate-prediction-quality">Step 2: Estimate Prediction Quality<a class="anchor" aria-label="anchor" href="#step-2-estimate-prediction-quality"></a>
@@ -897,7 +898,7 @@ predictions:</p>
 <p>Examine how well LLM predictions correlate with actual outcomes:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check correlations</span></span>
-<span><span class="va">pilot_results</span> <span class="op">&lt;-</span> <span class="fu">estimate_all</span><span class="op">(</span><span class="va">pilot_msd</span><span class="op">)</span></span>
+<span><span class="va">pilot_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_all.html">estimate_all</a></span><span class="op">(</span><span class="va">pilot_msd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pilot_results</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare to DiM baseline</span></span>
@@ -911,7 +912,7 @@ predictions:</p>
 </h3>
 <p>Use the pilot data to design your main study:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu">optimal_design</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optimal_design.html">optimal_design</a></span><span class="op">(</span></span>
 <span>  pilot_data <span class="op">=</span> <span class="va">pilot_msd</span>,</span>
 <span>  budget <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>  cost_human <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -935,7 +936,7 @@ predictions:</p>
 <span><span class="va">main_unobserved</span><span class="op">$</span><span class="va">S1</span> <span class="op">&lt;-</span> <span class="fu">get_llm_predictions</span><span class="op">(</span><span class="va">main_unobserved</span>, <span class="st">"treatment"</span><span class="op">)</span></span>
 <span><span class="va">main_unobserved</span><span class="op">$</span><span class="va">S0</span> <span class="op">&lt;-</span> <span class="fu">get_llm_predictions</span><span class="op">(</span><span class="va">main_unobserved</span>, <span class="st">"control"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">main_msd</span> <span class="op">&lt;-</span> <span class="fu">msd_data</span><span class="op">(</span>observed <span class="op">=</span> <span class="va">main_observed</span>, unobserved <span class="op">=</span> <span class="va">main_unobserved</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">main_msd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_data.html">msd_data</a></span><span class="op">(</span>observed <span class="op">=</span> <span class="va">main_observed</span>, unobserved <span class="op">=</span> <span class="va">main_unobserved</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-5-analyze-and-report">Step 5: Analyze and Report<a class="anchor" aria-label="anchor" href="#step-5-analyze-and-report"></a>
@@ -943,11 +944,11 @@ predictions:</p>
 <p>Estimate the treatment effect using the recommended estimator:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run the recommended estimator</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">msd_dt_dip</span><span class="op">(</span><span class="va">main_msd</span><span class="op">)</span>  <span class="co"># Or whichever was recommended</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt_dip.html">msd_dt_dip</a></span><span class="op">(</span><span class="va">main_msd</span><span class="op">)</span>  <span class="co"># Or whichever was recommended</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Optionally verify with bootstrap</span></span>
-<span><span class="va">boot_result</span> <span class="op">&lt;-</span> <span class="fu">bootstrap_variance</span><span class="op">(</span><span class="va">main_msd</span>, <span class="st">"dt_dip"</span>, n_bootstrap <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">boot_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap_variance.html">bootstrap_variance</a></span><span class="op">(</span><span class="va">main_msd</span>, <span class="st">"dt_dip"</span>, n_bootstrap <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -1084,13 +1085,13 @@ Mixed-Subjects Designs. R package version 0.1.0.</code></pre>
 <span><span class="co">#&gt; [1] mixedsubjects_0.1.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          codetools_0.2-20 </span></span>
-<span><span class="co">#&gt;  [5] fastmap_1.2.0     xfun_0.57         cachem_1.1.0      knitr_1.51       </span></span>
-<span><span class="co">#&gt;  [9] htmltools_0.5.9   rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.5        </span></span>
-<span><span class="co">#&gt; [13] sass_0.4.10       pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4  </span></span>
-<span><span class="co">#&gt; [17] systemfonts_1.3.2 compiler_4.5.3    tools_4.5.3       ragg_1.5.2       </span></span>
-<span><span class="co">#&gt; [21] evaluate_1.0.5    bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0   </span></span>
-<span><span class="co">#&gt; [25] rlang_1.1.7       fs_2.0.1</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          fastmap_1.2.0    </span></span>
+<span><span class="co">#&gt;  [5] xfun_0.57         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  </span></span>
+<span><span class="co">#&gt;  [9] rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.5         sass_0.4.10      </span></span>
+<span><span class="co">#&gt; [13] pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.2</span></span>
+<span><span class="co">#&gt; [17] compiler_4.5.3    tools_4.5.3       ragg_1.5.2        evaluate_1.0.5   </span></span>
+<span><span class="co">#&gt; [21] bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0    rlang_1.1.7      </span></span>
+<span><span class="co">#&gt; [25] fs_2.0.1</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
