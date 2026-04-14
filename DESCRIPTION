@@ -1,9 +1,10 @@
 Package: mixedsubjects
 Title: Causal Inference in Experiments with Mixed-Subjects Designs
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: c(
     person("Austin", "van Loon", email = "avanloon@mit.edu", role = c("aut", "cre")),
-    person("Klint", "Kanopka", role = "aut")
+    person("Klint", "Kanopka", email = "klint.kanopka@nyu.edu", role = c("aut", "cre"))
+    person("Yuan", "Huang", email = "yh2741@nyu.edu", role = "ctb")
   )
 Description: Implements seven estimators for average treatment effect (ATE)
     estimation in mixed-subjects designs (MSDs), where human subjects data is
