@@ -6,6 +6,14 @@
 \usage{
 \method{summary}{msd_design}(object, ...)
 }
+\arguments{
+\item{object}{An msd_design object.}
+
+\item{...}{Additional arguments passed to the print method.}
+}
+\value{
+Invisibly returns \code{object}.
+}
 \description{
 Summary method for msd_design
 }

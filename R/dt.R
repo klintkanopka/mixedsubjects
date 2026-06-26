@@ -163,7 +163,7 @@ msd_dt <- function(formula_or_data, data = NULL, observed = NULL,
 }
 
 #' Estimate arm-specific lambdas for D-T
-#' @keywords internal
+#' @noRd
 estimate_lambda_dt <- function(obs, treated_idx, control_idx, unobs, m1, m0) {
   # Get data for treatment arm
   Y1 <- obs$Y[treated_idx]
@@ -206,7 +206,7 @@ estimate_lambda_dt <- function(obs, treated_idx, control_idx, unobs, m1, m0) {
 }
 
 #' Compute D-T estimate for a fold
-#' @keywords internal
+#' @noRd
 compute_dt_estimate <- function(obs, unobs, treated_idx, control_idx,
                                  lambda1, lambda0) {
   # Get fold data
@@ -231,7 +231,7 @@ compute_dt_estimate <- function(obs, unobs, treated_idx, control_idx,
 #' See compute_ppi_variance for the derivation. The labeled terms' K factors
 #' cancel when averaging across folds; the unobserved term is shared across
 #' folds and is NOT divided by K.
-#' @keywords internal
+#' @noRd
 compute_dt_variance <- function(data, lambda1, lambda0, n_folds) {
   obs <- data$observed
   unobs <- data$unobserved

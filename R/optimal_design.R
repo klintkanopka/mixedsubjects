@@ -42,7 +42,6 @@
 #' from the pilot data.
 #'
 #' @examples
-#' \dontrun{
 #' # Pilot study data
 #' pilot_obs <- data.frame(
 #'   Y = rnorm(50),
@@ -65,7 +64,6 @@
 #'   cost_prediction = 0.01 # $0.01 per prediction
 #' )
 #' print(design)
-#' }
 #'
 #' @export
 optimal_design <- function(pilot_data,
@@ -230,7 +228,7 @@ optimal_design <- function(pilot_data,
 }
 
 #' Extract population moments from pilot data
-#' @keywords internal
+#' @noRd
 extract_pilot_moments <- function(pilot_data) {
   obs <- pilot_data$observed
   unobs <- pilot_data$unobserved
@@ -275,7 +273,7 @@ extract_pilot_moments <- function(pilot_data) {
 }
 
 #' Calculate expected variance for a given design
-#' @keywords internal
+#' @noRd
 expected_variance <- function(estimator, n_obs, n_unobs, treatment_prob, moments) {
   n1 <- round(n_obs * treatment_prob)
   n0 <- n_obs - n1
@@ -395,15 +393,18 @@ expected_variance <- function(estimator, n_obs, n_unobs, treatment_prob, moments
         cov_YS_0 <- moments$cov_Y0_S0
         cov_S1_S0 <- moments$cov_S1_S0
 
-        # TODO: Lambda bug — same issue as estimate_lambda_dt_dip() in dt_dip.R (discuss with team)
-        #
-        # Uses independent Cov(Y,S)/Var(S) but the correct solution requires
-        # solving a coupled 2x2 system that accounts for Cov(S1,S0)/m and
-        # Var(S)*(1/m + 1/n). See discussion point 6 in DISCUSSION_POINTS.txt.
-
-        # Arm-specific lambdas
-        lambda1 <- if (var_S1 > 0) cov_YS_1 / var_S1 else 0
-        lambda0 <- if (var_S0 > 0) cov_YS_0 / var_S0 else 0
+        # Coupled optimal lambdas (shared with estimate_lambda_dt_dip()). Pilot
+        # moments provide a single variance per prediction, so the observed and
+        # unobserved variances coincide here.
+        lambdas <- solve_dt_dip_lambda(
+          var_S1_unobs = var_S1, var_S0_unobs = var_S0,
+          cov_S1_S0_unobs = cov_S1_S0,
+          var_S1_obs = var_S1, var_S0_obs = var_S0,
+          cov_YS_1 = cov_YS_1, cov_YS_0 = cov_YS_0,
+          n1 = n1, n0 = n0, m = m
+        )
+        lambda1 <- lambdas$lambda1
+        lambda0 <- lambdas$lambda0
 
         # Unlabeled variance
         var_weighted_diff <- lambda1^2 * var_S1 + lambda0^2 * var_S0 -
@@ -421,6 +422,11 @@ expected_variance <- function(estimator, n_obs, n_unobs, treatment_prob, moments
 }
 
 #' Print method for msd_design
+#'
+#' @param x An msd_design object.
+#' @param digits Number of digits to display.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns `x`.
 #' @export
 print.msd_design <- function(x, digits = 4, ...) {
   cat("\n")
@@ -461,6 +467,10 @@ print.msd_design <- function(x, digits = 4, ...) {
 }
 
 #' Summary method for msd_design
+#'
+#' @param object An msd_design object.
+#' @param ... Additional arguments passed to the print method.
+#' @return Invisibly returns `object`.
 #' @export
 summary.msd_design <- function(object, ...) {
   print(object, ...)

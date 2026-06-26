@@ -2,3 +2,10 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^etc$
+^.*\.DS_Store$
+^LICENSE\.md$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^\.Rproj\.user$
+^.*\.Rproj$

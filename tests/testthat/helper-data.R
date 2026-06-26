@@ -21,7 +21,7 @@ make_test_data <- function(seed = 42) {
 
   obs_df <- data.frame(Y = Y_obs, D = D_obs, S0 = S0_obs, S1 = S1_obs)
 
-  # Unobserved data (same prediction pipeline as observed — Assumption C)
+  # Unobserved data (same prediction pipeline as observed - Assumption C)
   D_unobs <- rep(c(1, 0), each = n_unobs / 2)
   latent_Y <- rnorm(n_unobs) + true_tau * D_unobs
   common_error_unobs <- rnorm(n_unobs, 0, 0.3)

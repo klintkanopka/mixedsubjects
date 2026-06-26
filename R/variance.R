@@ -35,7 +35,6 @@
 #' bootstrap replicate to properly account for the cross-fitting variance.
 #'
 #' @examples
-#' \dontrun{
 #' # Create sample data
 #' obs_df <- data.frame(
 #'   Y = rnorm(100),
@@ -51,9 +50,8 @@
 #' msd <- msd_data(observed = obs_df, unobserved = unobs_df)
 #'
 #' # Bootstrap variance for D-T DiP
-#' boot_result <- bootstrap_variance(msd, "dt_dip", n_bootstrap = 500)
+#' boot_result <- bootstrap_variance(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 #' print(boot_result)
-#' }
 #'
 #' @export
 bootstrap_variance <- function(data,
@@ -91,6 +89,17 @@ bootstrap_variance <- function(data,
   treated_idx <- which(obs$D == 1)
   control_idx <- which(obs$D == 0)
 
+  # Unobserved pool indices and per-arm sizes (for stratified resampling).
+  # Stratifying by arm preserves the m1/m0 ratio in every bootstrap sample,
+  # which matters for the arm-split estimators (PPI++, D-T) and leaves the
+  # DiP-type estimators (which pool all unobserved units) unaffected.
+  if (m > 0) {
+    unobs_treated_idx <- which(unobs$D == 1)
+    unobs_control_idx <- which(unobs$D == 0)
+    m1 <- length(unobs_treated_idx)
+    m0 <- length(unobs_control_idx)
+  }
+
   # Bootstrap loop
   for (b in 1:n_bootstrap) {
     # Resample within strata
@@ -100,21 +109,11 @@ bootstrap_variance <- function(data,
     # Create bootstrap observed data
     boot_obs <- rbind(obs[boot_treated, ], obs[boot_control, ])
 
-    # TODO: Bug — unobserved resampling not stratified by arm (discuss with team)
-    #
-    # For PPI++ and D-T estimators, unobserved data is split by arm (D==1 vs
-    # D==0). Resampling the whole pool together can shift the m1/m0 ratio in
-    # each bootstrap sample. Should stratify like the observed data:
-    #   boot_unobs <- rbind(
-    #     unobs[sample(which(unobs$D==1), m1, replace=TRUE), ],
-    #     unobs[sample(which(unobs$D==0), m0, replace=TRUE), ]
-    #   )
-    # Not an issue for DiP-type estimators which pool all unobserved units.
-
-    # Resample unlabeled
+    # Resample unlabeled, stratified by arm
     if (m > 0) {
-      boot_unobs_idx <- sample(1:m, m, replace = TRUE)
-      boot_unobs <- unobs[boot_unobs_idx, ]
+      boot_unobs_treated <- sample(unobs_treated_idx, m1, replace = TRUE)
+      boot_unobs_control <- sample(unobs_control_idx, m0, replace = TRUE)
+      boot_unobs <- rbind(unobs[boot_unobs_treated, ], unobs[boot_unobs_control, ])
     } else {
       boot_unobs <- NULL
     }
@@ -176,7 +175,7 @@ bootstrap_variance <- function(data,
 }
 
 #' Run a specific estimator
-#' @keywords internal
+#' @noRd
 run_estimator <- function(data, estimator, n_folds = 2) {
   switch(estimator,
     "dim" = msd_dim(data),
@@ -204,11 +203,16 @@ run_estimator <- function(data, estimator, n_folds = 2) {
 #' @return A data frame comparing variance estimates
 #'
 #' @examples
-#' \dontrun{
+#' obs_df <- data.frame(
+#'   Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+#'   D = rep(c(1, 0), each = 50)
+#' )
+#' unobs_df <- data.frame(
+#'   S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+#' )
 #' msd <- msd_data(observed = obs_df, unobserved = unobs_df)
-#' comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 500)
+#' comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 #' print(comparison)
-#' }
 #'
 #' @export
 compare_variance_methods <- function(data,
@@ -250,11 +254,16 @@ compare_variance_methods <- function(data,
 #' @return A data frame with estimates from all applicable estimators
 #'
 #' @examples
-#' \dontrun{
+#' obs_df <- data.frame(
+#'   Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+#'   D = rep(c(1, 0), each = 50)
+#' )
+#' unobs_df <- data.frame(
+#'   S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+#' )
 #' msd <- msd_data(observed = obs_df, unobserved = unobs_df)
 #' all_estimates <- estimate_all(msd)
 #' print(all_estimates)
-#' }
 #'
 #' @export
 estimate_all <- function(data, n_folds = 2, conf_level = 0.95) {
@@ -327,6 +336,11 @@ estimate_all <- function(data, n_folds = 2, conf_level = 0.95) {
 }
 
 #' Print method for msd_summary
+#'
+#' @param x An msd_summary object.
+#' @param digits Number of digits to display.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns `x`.
 #' @export
 print.msd_summary <- function(x, digits = 4, ...) {
   cat("\n")

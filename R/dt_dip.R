@@ -33,8 +33,11 @@
 #'   \frac{1}{n_1}\sum_{i \in \mathcal{O}_1}(Y_i - \lambda_1 S_i^{(1)}) -
 #'   \frac{1}{n_0}\sum_{i \in \mathcal{O}_0}(Y_i - \lambda_0 S_i^{(0)})}
 #'
-#' Each lambda_d is chosen to minimize the variance in arm d:
-#' \deqn{\lambda_d^* = \frac{Cov(Y(d), S^{(d)})}{Var(S^{(d)})}}
+#' The tuning parameters \eqn{(\lambda_1, \lambda_0)} are chosen jointly to
+#' minimize the total variance. Because the two arms share the unobserved pool,
+#' the variance is jointly quadratic in \eqn{(\lambda_1, \lambda_0)} with a
+#' cross-term from \eqn{Cov(S^{(1)}, S^{(0)})}, so the optimum solves a coupled
+#' 2x2 linear system rather than two independent regressions.
 #'
 #' The tuning parameters are estimated via cross-fitting:
 #' \enumerate{
@@ -168,30 +171,64 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
   )
 }
 
-# TODO: Lambda estimation bug — ignores coupling and unobserved pool (discuss with team)
-#
-# The correct variance is jointly quadratic in (lambda1, lambda0) with a
-# cross-term Cov(S1,S0)/m from the shared unobserved pool. Minimizing
-# requires solving a coupled 2x2 system:
-#
-#   lambda1 * A1 - lambda0 * B  = D1
-#   lambda0 * A0 - lambda1 * B  = D0
-#
-#   A1 = Var(S1)*(1/m + 1/n1),  A0 = Var(S0)*(1/m + 1/n0)
-#   B  = Cov(S1,S0)/m
-#   D1 = Cov(Y1,S1)/n1,         D0 = Cov(Y0,S0)/n0
-#
-#   Joint solution:
-#     lambda1* = (D1*A0 + D0*B) / (A1*A0 - B^2)
-#     lambda0* = (D0*A1 + D1*B) / (A1*A0 - B^2)
-#
-# Current code uses Cov(Y,S)/Var(S) (simple regression coefficient), which:
-#   a) Ignores coupling — estimates lambda1, lambda0 independently
-#   b) Ignores unobserved pool size m (compare to dt.R which includes it)
-# Approximately correct only when m is very large or Cov(S1,S0) ≈ 0.
+#' Solve for the optimal coupled D-T DiP tuning parameters
+#'
+#' The D-T DiP variance is jointly quadratic in (lambda1, lambda0) with a
+#' cross-term from the shared unobserved pool, so the optimal lambdas solve a
+#' coupled 2x2 system rather than two independent regressions. This helper
+#' encapsulates that solution so the estimator and the optimal-design code path
+#' cannot drift apart.
+#'
+#' Minimizing the variance gives:
+#'   lambda1 * A1 - lambda0 * B = D1
+#'   lambda0 * A0 - lambda1 * B = D0
+#' with
+#'   A1 = Var(S1_U)/m + Var(S1_O1)/n1,  A0 = Var(S0_U)/m + Var(S0_O0)/n0
+#'   B  = Cov(S1,S0)_U / m
+#'   D1 = Cov(Y1,S1)/n1,                D0 = Cov(Y0,S0)/n0
+#' and closed-form solution (det = A1*A0 - B^2):
+#'   lambda1* = (D1*A0 + D0*B) / det
+#'   lambda0* = (D0*A1 + D1*B) / det
+#'
+#' When only a single variance estimate per prediction is available (e.g. from
+#' pilot moments), pass the same value for the observed and unobserved variance,
+#' which reduces A1 to Var(S1)*(1/m + 1/n1).
+#'
+#' @param var_S1_unobs,var_S0_unobs Variances of S1, S0 in the unobserved pool.
+#' @param cov_S1_S0_unobs Covariance of S1 and S0 in the unobserved pool.
+#' @param var_S1_obs,var_S0_obs Variances of S1, S0 in the observed arms.
+#' @param cov_YS_1,cov_YS_0 Covariances of (Y, S) within the treatment and
+#'   control arms.
+#' @param n1,n0,m Treatment, control, and unobserved sample sizes.
+#' @return A list with elements `lambda1` and `lambda0`.
+#' @noRd
+solve_dt_dip_lambda <- function(var_S1_unobs, var_S0_unobs, cov_S1_S0_unobs,
+                                var_S1_obs, var_S0_obs,
+                                cov_YS_1, cov_YS_0, n1, n0, m) {
+  A1 <- var_S1_unobs / m + var_S1_obs / n1
+  A0 <- var_S0_unobs / m + var_S0_obs / n0
+  B  <- cov_S1_S0_unobs / m
+  D1 <- cov_YS_1 / n1
+  D0 <- cov_YS_0 / n0
+
+  det <- A1 * A0 - B^2
+
+  # Degenerate system (near-zero determinant or non-finite inputs): fall back
+  # to the decoupled solution, guarding against zero-variance arms.
+  if (!is.finite(det) || abs(det) < .Machine$double.eps^0.5) {
+    lambda1 <- if (A1 > 0) D1 / A1 else 0
+    lambda0 <- if (A0 > 0) D0 / A0 else 0
+    return(list(lambda1 = lambda1, lambda0 = lambda0))
+  }
+
+  lambda1 <- (D1 * A0 + D0 * B) / det
+  lambda0 <- (D0 * A1 + D1 * B) / det
+
+  list(lambda1 = lambda1, lambda0 = lambda0)
+}
 
 #' Estimate arm-specific lambdas for D-T DiP
-#' @keywords internal
+#' @noRd
 estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
   # Get data for treatment arm
   Y1 <- obs$Y[treated_idx]
@@ -203,37 +240,22 @@ estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
   S0_obs_0 <- obs$S0[control_idx]
   n0 <- length(Y0)
 
-  # For D-T DiP, lambda_d minimizes the arm-specific variance contribution
-  # The formulas involve both the labeled and unlabeled variance terms
-  #
-  # For arm 1: lambda_1^* = cov(Y1, S1) / var(S1) approximately
-  # (simplified - full formula includes unlabeled pool contribution)
-
-  var_S1 <- var(S1_obs_1)
-  cov_YS_1 <- cov(Y1, S1_obs_1)
-
-  if (var_S1 > 0) {
-    # Use regression coefficient as lambda
-    lambda1 <- cov_YS_1 / var_S1
-  } else {
-    lambda1 <- 0
-
-  }
-
-  var_S0 <- var(S0_obs_0)
-  cov_YS_0 <- cov(Y0, S0_obs_0)
-
-  if (var_S0 > 0) {
-    lambda0 <- cov_YS_0 / var_S0
-  } else {
-    lambda0 <- 0
-  }
-
-  list(lambda1 = lambda1, lambda0 = lambda0)
+  # The optimal arm-specific lambdas jointly minimize the D-T DiP variance,
+  # accounting for the coupling through the shared unobserved pool.
+  solve_dt_dip_lambda(
+    var_S1_unobs = var(unobs$S1),
+    var_S0_unobs = var(unobs$S0),
+    cov_S1_S0_unobs = cov(unobs$S1, unobs$S0),
+    var_S1_obs = var(S1_obs_1),
+    var_S0_obs = var(S0_obs_0),
+    cov_YS_1 = cov(Y1, S1_obs_1),
+    cov_YS_0 = cov(Y0, S0_obs_0),
+    n1 = n1, n0 = n0, m = m
+  )
 }
 
 #' Compute D-T DiP estimate for a fold
-#' @keywords internal
+#' @noRd
 compute_dt_dip_estimate <- function(obs, unobs, treated_idx, control_idx,
                                      lambda1, lambda0) {
   # Get fold data
@@ -261,7 +283,7 @@ compute_dt_dip_estimate <- function(obs, unobs, treated_idx, control_idx,
 #' The unobserved component var_U = Var(lambda1*S1 - lambda0*S0) / m is shared
 #' across all folds and is NOT divided by K. The labeled components' K factors
 #' cancel when averaging across folds.
-#' @keywords internal
+#' @noRd
 compute_dt_dip_variance <- function(data, lambda1, lambda0, n_folds) {
   obs <- data$observed
   unobs <- data$unobserved

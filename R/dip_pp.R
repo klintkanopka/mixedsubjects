@@ -147,7 +147,7 @@ msd_dip_pp <- function(formula_or_data, data = NULL, observed = NULL,
 }
 
 #' Estimate lambda for DiP++ (single lambda)
-#' @keywords internal
+#' @noRd
 estimate_lambda_dip_pp <- function(obs, treated_idx, control_idx, unobs, m) {
   # Get data
   Y1 <- obs$Y[treated_idx]
@@ -177,7 +177,7 @@ estimate_lambda_dip_pp <- function(obs, treated_idx, control_idx, unobs, m) {
 }
 
 #' Compute DiP++ estimate for a fold
-#' @keywords internal
+#' @noRd
 compute_dip_pp_estimate <- function(obs, unobs, treated_idx, control_idx, lambda) {
   Y1 <- obs$Y[treated_idx]
   Y0 <- obs$Y[control_idx]
@@ -198,7 +198,7 @@ compute_dip_pp_estimate <- function(obs, unobs, treated_idx, control_idx, lambda
 #' The unobserved component var_U = lambda^2 * Var(S1-S0) / m is shared across
 #' all folds and is NOT divided by K. The labeled components' K factors cancel
 #' when averaging across folds.
-#' @keywords internal
+#' @noRd
 compute_dip_pp_variance <- function(data, lambda, n_folds) {
   obs <- data$observed
   unobs <- data$unobserved

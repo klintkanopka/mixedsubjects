@@ -1,23 +1,15 @@
-# TODO: Naming inconsistency with paper (discuss with team)
-# This function is named "GREG" but implements lambda = 1 (untuned), which
-# corresponds to Row 2 of Table 1 in the paper (PPI / DSL), NOT the GREG
-# estimator. In the paper, GREG is grouped with PPI++ (Row 3) as the
-# singly-tuned estimator where lambda is estimated via cross-fitting —
-# which is what msd_ppi() actually implements.
-#
-# Options:
-#   1. Rename msd_greg -> msd_dsl (or msd_ppi_base) to match paper Row 2,
-#      and rename msd_ppi -> msd_greg (or alias both) to match paper Row 3.
-#   2. Keep current names but update documentation to clarify the mismatch.
-
 #' @title GREG Estimator
 #' @description Generalized Regression (GREG) calibration estimator for ATE.
 
 #' GREG Estimator
 #'
 #' Computes the Generalized Regression (GREG) calibration estimator for the
-#' average treatment effect (ATE). This estimator corresponds to PPI with
-#' tuning parameter lambda = 1.
+#' average treatment effect (ATE). This is the untuned calibration estimator
+#' with tuning parameter \eqn{\lambda = 1}. GREG, the original
+#' Prediction-Powered Inference (PPI) estimator, and Design-based Supervised
+#' Learning (DSL) are all the same untuned (\eqn{\lambda = 1}) estimator. It is
+#' distinct from the power-tuned PPI++ estimator in \code{\link{msd_ppi}}, which
+#' estimates \eqn{\lambda} via cross-fitting to minimize variance.
 #'
 #' @param formula_or_data Either an msd_data object created by \code{\link{msd_data}},
 #'   or a formula of the form \code{outcome ~ treatment | prediction}.

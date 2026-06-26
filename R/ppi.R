@@ -163,7 +163,7 @@ msd_ppi <- function(formula_or_data, data = NULL, observed = NULL,
 }
 
 #' Estimate lambda for PPI++ (single lambda across arms)
-#' @keywords internal
+#' @noRd
 estimate_lambda_ppi <- function(obs, treated_idx, control_idx, unobs, m1, m0) {
   # Get data for estimation
   Y1 <- obs$Y[treated_idx]
@@ -203,7 +203,7 @@ estimate_lambda_ppi <- function(obs, treated_idx, control_idx, unobs, m1, m0) {
 }
 
 #' Compute PPI++ estimate for a fold
-#' @keywords internal
+#' @noRd
 compute_ppi_estimate <- function(obs, unobs, treated_idx, control_idx, lambda) {
   # Get fold data
   Y1 <- obs$Y[treated_idx]
@@ -232,7 +232,7 @@ compute_ppi_estimate <- function(obs, unobs, treated_idx, control_idx, lambda) {
 #'   Var(theta) = (1/K^2) * sum_k Var(L_k) + Var(U)
 #'              = labeled_var / n_d + lambda^2 * Var(S_d) / m_d
 #' The labeled terms' K factors cancel; the unobserved term is NOT divided by K.
-#' @keywords internal
+#' @noRd
 compute_ppi_variance <- function(data, lambda, n_folds) {
   obs <- data$observed
   unobs <- data$unobserved

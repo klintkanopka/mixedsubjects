@@ -31,10 +31,15 @@ Computes and compares variance estimates using both delta-method and
 bootstrap for a given estimator.
 }
 \examples{
-\dontrun{
+obs_df <- data.frame(
+  Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+  D = rep(c(1, 0), each = 50)
+)
+unobs_df <- data.frame(
+  S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+)
 msd <- msd_data(observed = obs_df, unobserved = unobs_df)
-comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 500)
+comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 print(comparison)
-}
 
 }

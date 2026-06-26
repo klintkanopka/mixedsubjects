@@ -211,7 +211,7 @@ has_combined <- !is.null(data)
 }
 
 #' Null-coalescing operator
-#' @keywords internal
+#' @noRd
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 #' Validate that a column exists in a dataframe
@@ -222,7 +222,7 @@ has_combined <- !is.null(data)
 #'   "pred_control", "pred_treated"
 #' @param required If TRUE, error when not found; if FALSE, return NULL
 #' @return The column name if found, or NULL if not required and not found
-#' @keywords internal
+#' @noRd
 validate_column <- function(df, col_name, type, required = TRUE) {
   if (!is.null(col_name) && col_name %in% names(df)) {
     return(col_name)
@@ -237,7 +237,7 @@ validate_column <- function(df, col_name, type, required = TRUE) {
 }
 
 #' Process combined dataframe
-#' @keywords internal
+#' @noRd
 process_combined_data <- function(data, y_col, s0_col, s1_col, d_col) {
   # Check prediction columns
   has_S0 <- !is.null(s0_col) && s0_col %in% names(data)
@@ -272,7 +272,7 @@ process_combined_data <- function(data, y_col, s0_col, s1_col, d_col) {
 }
 
 #' Process separate dataframes
-#' @keywords internal
+#' @noRd
 process_separate_data <- function(observed_df, unobserved_df,
                                    y_col, d_col_obs, s0_col_obs, s1_col_obs,
                                    d_col_unobs, s0_col_unobs, s1_col_unobs) {
@@ -327,7 +327,7 @@ process_separate_data <- function(observed_df, unobserved_df,
 }
 
 #' Validate data and create msd_data object
-#' @keywords internal
+#' @noRd
 validate_and_create <- function(observed, unobserved, has_S0, has_S1) {
   # Validate observed data
   if (nrow(observed) == 0) {

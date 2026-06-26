@@ -20,10 +20,15 @@ A data frame with estimates from all applicable estimators
 Runs all applicable estimators on the data and returns a summary table.
 }
 \examples{
-\dontrun{
+obs_df <- data.frame(
+  Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+  D = rep(c(1, 0), each = 50)
+)
+unobs_df <- data.frame(
+  S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+)
 msd <- msd_data(observed = obs_df, unobserved = unobs_df)
 all_estimates <- estimate_all(msd)
 print(all_estimates)
-}
 
 }

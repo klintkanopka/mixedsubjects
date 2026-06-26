@@ -20,8 +20,14 @@ the coefficient table with z-statistics and p-values, sample size
 information, and interpretation guidance.
 }
 \examples{
-\dontrun{
-result <- msd_dt_dip(msd)
+obs_df <- data.frame(
+  Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+  D = rep(c(1, 0), each = 50)
+)
+unobs_df <- data.frame(
+  S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+)
+msd <- msd_data(observed = obs_df, unobserved = unobs_df)
+result <- msd_dt_dip(msd, seed = 1)
 summary(result)
-}
 }

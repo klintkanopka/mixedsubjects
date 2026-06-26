@@ -6,6 +6,16 @@
 \usage{
 \method{print}{msd_summary}(x, digits = 4, ...)
 }
+\arguments{
+\item{x}{An msd_summary object.}
+
+\item{digits}{Number of digits to display.}
+
+\item{...}{Additional arguments (ignored).}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Print method for msd_summary
 }

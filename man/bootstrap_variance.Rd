@@ -56,7 +56,6 @@ For cross-fit estimators, the fold assignments are regenerated for each
 bootstrap replicate to properly account for the cross-fitting variance.
 }
 \examples{
-\dontrun{
 # Create sample data
 obs_df <- data.frame(
   Y = rnorm(100),
@@ -72,8 +71,7 @@ unobs_df <- data.frame(
 msd <- msd_data(observed = obs_df, unobserved = unobs_df)
 
 # Bootstrap variance for D-T DiP
-boot_result <- bootstrap_variance(msd, "dt_dip", n_bootstrap = 500)
+boot_result <- bootstrap_variance(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 print(boot_result)
-}
 
 }

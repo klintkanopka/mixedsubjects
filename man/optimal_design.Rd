@@ -67,7 +67,6 @@ The expected variance is computed using population moments estimated
 from the pilot data.
 }
 \examples{
-\dontrun{
 # Pilot study data
 pilot_obs <- data.frame(
   Y = rnorm(50),
@@ -90,6 +89,5 @@ design <- optimal_design(
   cost_prediction = 0.01 # $0.01 per prediction
 )
 print(design)
-}
 
 }

@@ -1,6 +1,5 @@
-#' @title Utility Functions for Mixed-Subjects Design
-#' @description Internal helper functions for the mixedsubjects package.
-#' @keywords internal
+# Utility Functions for Mixed-Subjects Design
+# Internal helper functions for the mixedsubjects package.
 
 # -----------------------------------------------------------------------------
 # S3 Class Constructor for msd_result
@@ -21,7 +20,7 @@
 #' @param conf_level Confidence level used
 #' @param additional Additional method-specific information
 #' @return An S3 object of class "msd_result"
-#' @keywords internal
+#' @noRd
 new_msd_result <- function(estimate,
                            variance,
                            se,
@@ -109,10 +108,16 @@ print.msd_result <- function(x, digits = 4, ...) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' result <- msd_dt_dip(msd)
+#' obs_df <- data.frame(
+#'   Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+#'   D = rep(c(1, 0), each = 50)
+#' )
+#' unobs_df <- data.frame(
+#'   S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+#' )
+#' msd <- msd_data(observed = obs_df, unobserved = unobs_df)
+#' result <- msd_dt_dip(msd, seed = 1)
 #' summary(result)
-#' }
 summary.msd_result <- function(object, ...) {
   z_stat <- object$estimate / object$se
   p_value <- 2 * (1 - stats::pnorm(abs(z_stat)))
@@ -249,7 +254,7 @@ print.summary.msd_result <- function(x, digits = 4, ...) {
 }
 
 #' Format p-value for display
-#' @keywords internal
+#' @noRd
 format_pvalue <- function(p) {
   if (is.na(p)) return("NA")
   if (p < 0.0001) return("< 0.0001")
@@ -267,7 +272,7 @@ format_pvalue <- function(p) {
 #' @param n_folds Number of folds (default 2)
 #' @param seed Random seed for reproducibility (optional)
 #' @return A vector of fold assignments (integers 1 to n_folds)
-#' @keywords internal
+#' @noRd
 create_folds <- function(n, n_folds = 2, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
 
@@ -285,7 +290,7 @@ fold_ids <- rep(1:n_folds, length.out = n)
 #' @param n_folds Number of folds
 #' @param seed Random seed
 #' @return A list with fold assignments for each arm
-#' @keywords internal
+#' @noRd
 split_by_arm_fold <- function(data, n_folds = 2, seed = NULL) {
   # Get observed data
   obs <- data$observed
@@ -317,7 +322,7 @@ split_by_arm_fold <- function(data, n_folds = 2, seed = NULL) {
 #'
 #' @param x A numeric vector
 #' @return Sample variance using n denominator
-#' @keywords internal
+#' @noRd
 var_pop <- function(x) {
   n <- length(x)
   if (n <= 1) return(0)
@@ -329,7 +334,7 @@ var_pop <- function(x) {
 #' @param x A numeric vector
 #' @param y A numeric vector
 #' @return Sample covariance using n denominator
-#' @keywords internal
+#' @noRd
 cov_pop <- function(x, y) {
   n <- length(x)
   if (n <= 1) return(0)
@@ -340,7 +345,7 @@ cov_pop <- function(x, y) {
 #'
 #' @param data An msd_data object
 #' @return A list of sample moments
-#' @keywords internal
+#' @noRd
 compute_moments <- function(data) {
   obs <- data$observed
   unobs <- data$unobserved
@@ -426,7 +431,7 @@ compute_moments <- function(data) {
 #' @param obs_subset Subset of observed data
 #' @param arm Which arm (1 or 0)
 #' @return List of arm-specific moments
-#' @keywords internal
+#' @noRd
 compute_arm_moments <- function(obs_subset, arm) {
   Y <- obs_subset$Y
   n <- length(Y)
@@ -464,7 +469,7 @@ compute_arm_moments <- function(obs_subset, arm) {
 #' @param se Standard error
 #' @param conf_level Confidence level (default 0.95)
 #' @return Named vector with ci_lower and ci_upper
-#' @keywords internal
+#' @noRd
 compute_ci <- function(estimate, se, conf_level = 0.95) {
   z <- stats::qnorm(1 - (1 - conf_level) / 2)
   c(ci_lower = estimate - z * se, ci_upper = estimate + z * se)
@@ -486,7 +491,7 @@ compute_ci <- function(estimate, se, conf_level = 0.95) {
 #'
 #' @param formula A formula object
 #' @return A list with outcome, treatment, and prediction variable names
-#' @keywords internal
+#' @noRd
 parse_msd_formula <- function(formula) {
   if (!inherits(formula, "formula")) {
     stop("Expected a formula object (e.g., Y ~ D | S1 + S0)")
@@ -558,7 +563,7 @@ parse_msd_formula <- function(formula) {
 #' @param observed Raw observed dataframe (if data is NULL)
 #' @param unobserved Raw unobserved dataframe (if data is NULL)
 #' @return An msd_data object with appropriate column mapping
-#' @keywords internal
+#' @noRd
 apply_formula_to_data <- function(parsed_formula, data = NULL,
                                    observed = NULL, unobserved = NULL) {
 
@@ -610,7 +615,7 @@ apply_formula_to_data <- function(parsed_formula, data = NULL,
 #' @param unobserved If formula provided and data is NULL, the unobserved dataframe
 #' @param require_predictions Logical, whether to require prediction columns
 #' @return An msd_data object ready for estimation
-#' @keywords internal
+#' @noRd
 resolve_msd_data <- function(formula_or_data, data = NULL,
                               observed = NULL, unobserved = NULL,
                               require_predictions = TRUE) {

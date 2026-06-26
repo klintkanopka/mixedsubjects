@@ -56,8 +56,11 @@ The D-T DiP estimator is:
   \frac{1}{n_1}\sum_{i \in \mathcal{O}_1}(Y_i - \lambda_1 S_i^{(1)}) -
   \frac{1}{n_0}\sum_{i \in \mathcal{O}_0}(Y_i - \lambda_0 S_i^{(0)})}
 
-Each lambda_d is chosen to minimize the variance in arm d:
-\deqn{\lambda_d^* = \frac{Cov(Y(d), S^{(d)})}{Var(S^{(d)})}}
+The tuning parameters \eqn{(\lambda_1, \lambda_0)} are chosen jointly to
+minimize the total variance. Because the two arms share the unobserved pool,
+the variance is jointly quadratic in \eqn{(\lambda_1, \lambda_0)} with a
+cross-term from \eqn{Cov(S^{(1)}, S^{(0)})}, so the optimum solves a coupled
+2x2 linear system rather than two independent regressions.
 
 The tuning parameters are estimated via cross-fitting:
 \enumerate{

@@ -40,8 +40,12 @@ Generalized Regression (GREG) calibration estimator for ATE.
 GREG Estimator
 
 Computes the Generalized Regression (GREG) calibration estimator for the
-average treatment effect (ATE). This estimator corresponds to PPI with
-tuning parameter lambda = 1.
+average treatment effect (ATE). This is the untuned calibration estimator
+with tuning parameter \eqn{\lambda = 1}. GREG, the original
+Prediction-Powered Inference (PPI) estimator, and Design-based Supervised
+Learning (DSL) are all the same untuned (\eqn{\lambda = 1}) estimator. It is
+distinct from the power-tuned PPI++ estimator in \code{\link{msd_ppi}}, which
+estimates \eqn{\lambda} via cross-fitting to minimize variance.
 }
 \details{
 The GREG estimator for arm \eqn{d} is:
