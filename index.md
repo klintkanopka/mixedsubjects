@@ -1,3 +1,5 @@
+# mixedsubjects
+
 `mixedsubjects` is a package for conducting social science experiments
 using the Mixed-Subjects Design and estimating causal effects. It
 implements seven estimators for average treatment effect (ATE)
