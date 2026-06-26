@@ -44,9 +44,17 @@ A data frame comparing variance estimates
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+obs_df <- data.frame(
+  Y = rnorm(100), S0 = rnorm(100), S1 = rnorm(100),
+  D = rep(c(1, 0), each = 50)
+)
+unobs_df <- data.frame(
+  S0 = rnorm(200), S1 = rnorm(200), D = rep(c(1, 0), each = 100)
+)
 msd <- msd_data(observed = obs_df, unobserved = unobs_df)
-comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 500)
+comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 print(comparison)
-} # }
+#>                Method   Estimate   Variance        SE   CI_Lower  CI_Upper
+#> ci_lower Delta-method 0.08456805 0.04819244 0.2195278 -0.3456985 0.5148346
+#>             Bootstrap 0.10692238 0.05166501 0.2272994 -0.4237820 0.4832869
 ```

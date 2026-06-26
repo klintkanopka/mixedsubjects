@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Comparing Estimators Under Different Data-Generating Processes • mixedsubjects</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Comparing Estimators Under Different Data-Generating Processes">
 </head>
@@ -37,11 +37,13 @@
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to Mixed-Subjects Designs with the mixedsubjects Package</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/klintkanopka/mixedsubjects/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -58,9 +60,9 @@
       <h1>Comparing Estimators Under Different Data-Generating Processes</h1>
                         <h4 data-toc-skip class="author">mixedsubjects</h4>
             
-            <h4 data-toc-skip class="date">2026-04-14</h4>
+            <h4 data-toc-skip class="date">2026-06-26</h4>
       
-
+      <small class="dont-index">Source: <a href="https://github.com/klintkanopka/mixedsubjects/blob/main/vignettes/compare_estimators.Rmd" class="external-link"><code>vignettes/compare_estimators.Rmd</code></a></small>
       <div class="d-none name"><code>compare_estimators.Rmd</code></div>
     </div>
 
@@ -90,7 +92,7 @@ estimator achieves the smallest variance.</p>
 <tbody>
 <tr class="odd">
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>S</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\rho(Y, S)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>S</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\rho(Y, S)</annotation></semantics></math>
 — prediction quality</td>
 <td>All prediction-based estimators over DiM</td>
 </tr>
@@ -104,7 +106,7 @@ estimators</td>
 </tr>
 <tr class="odd">
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)})</annotation></semantics></math>
 — common-mode prediction error</td>
 <td>DiP family over PPI/D-T family</td>
 </tr>
@@ -176,7 +178,7 @@ helps more)</td>
 <h2 id="scenario-1-poor-predictions-dim-wins">Scenario 1: Poor Predictions — DiM Wins<a class="anchor" aria-label="anchor" href="#scenario-1-poor-predictions-dim-wins"></a>
 </h2>
 <p>When predictions are essentially noise
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>S</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\rho(Y,S) \approx 0</annotation></semantics></math>),
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>S</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\rho(Y,S) \approx 0</annotation></semantics></math>),
 incorporating them only adds variance. DiM ignores predictions entirely,
 so it should dominate.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -214,11 +216,11 @@ so it should dominate.</p>
 <span><span class="co">#&gt;         dt -0.0020 0.019715 0.019709         </span></span>
 <span><span class="co">#&gt;        dip  0.0031 0.044152 0.044139         </span></span>
 <span><span class="co">#&gt;     dip_pp -0.0018 0.019632 0.019626         </span></span>
-<span><span class="co">#&gt;     dt_dip -0.0023 0.019895 0.019890         </span></span>
+<span><span class="co">#&gt;     dt_dip -0.0021 0.019799 0.019794         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Lowest variance: dim</span></span></code></pre></div>
 <p><strong>Why</strong>: All prediction-based estimators add
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>S</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S)/m</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S)/m</annotation></semantics></math>
 to the variance without any offsetting covariance reduction. The optimal
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 shrinks toward 0 for PPI++/D-T/DiP++/D-T DiP, making them roughly equal
@@ -232,19 +234,19 @@ are strictly worse.</p>
 <p>When a covariate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 has <strong>opposite effects</strong> on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y(1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y(1)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y(0)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y(0)</annotation></semantics></math>
 (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>ε</mi><mo>+</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Y(0) = \varepsilon + X</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>ε</mi><mi>′</mi><mo>−</mo><mi>X</mi><mo>+</mo><mi>τ</mi></mrow><annotation encoding="application/x-tex">Y(1) = \varepsilon' - X + \tau</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>ε</mi><mo>+</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Y(0) = \varepsilon + X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>ε</mi><mo>′</mo></msup><mo>−</mo><mi>X</mi><mo>+</mo><mi>τ</mi></mrow><annotation encoding="application/x-tex">Y(1) = \varepsilon' - X + \tau</annotation></semantics></math>),
 the potential outcomes are negatively correlated, and so are the
 predictions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>.
 This inflates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)})</annotation></semantics></math>
 relative to the positive-correlation case, which
 <strong>reduces</strong> DiP’s advantage over PPI — but does not
 eliminate it, because DiP still benefits structurally from using all
@@ -293,14 +295,14 @@ each).</p>
 <span><span class="co">#&gt;        ppi 0.0019 0.007675 0.007674         </span></span>
 <span><span class="co">#&gt;         dt 0.0021 0.007698 0.007698         </span></span>
 <span><span class="co">#&gt;        dip 0.0013 0.007707 0.007705         </span></span>
-<span><span class="co">#&gt;     dip_pp 0.0014 0.007297 0.007296  &lt;-- min</span></span>
-<span><span class="co">#&gt;     dt_dip 0.0011 0.009078 0.009075         </span></span>
+<span><span class="co">#&gt;     dip_pp 0.0014 0.007297 0.007296         </span></span>
+<span><span class="co">#&gt;     dt_dip 0.0015 0.007296 0.007294  &lt;-- min</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Lowest variance: dip_pp</span></span></code></pre></div>
+<span><span class="co">#&gt; Lowest variance: dt_dip</span></span></code></pre></div>
 <p><strong>Why</strong>: With
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)}) &lt; 0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)}) &lt; 0</annotation></semantics></math>,
 differencing inflates the unobserved variance:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)}) =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)}) =
 \text{Var}(S^{(1)}) + \text{Var}(S^{(0)}) - 2\text{Cov}(S^{(1)}, S^{(0)}) &gt;
 \text{Var}(S^{(1)}) + \text{Var}(S^{(0)})</annotation></semantics></math>.
 However, DiP still outperforms PPI because its unobserved term divides
@@ -309,11 +311,11 @@ by
 while PPI divides by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">m/2</annotation></semantics></math>
 per arm. In general,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mi>m</mi></mfrac><mo>≤</mo><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>m</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>m</mi><mn>0</mn></msub></mfrac></mrow><annotation encoding="application/x-tex">\frac{\text{Var}(S^{(1)} - S^{(0)})}{m} \leq \frac{\text{Var}(S^{(1)})}{m_1} + \frac{\text{Var}(S^{(0)})}{m_0}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mi>m</mi></mfrac><mo>≤</mo><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><msub><mi>m</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><msub><mi>m</mi><mn>0</mn></msub></mfrac></mrow><annotation encoding="application/x-tex">\frac{\text{Var}(S^{(1)} - S^{(0)})}{m} \leq \frac{\text{Var}(S^{(1)})}{m_1} + \frac{\text{Var}(S^{(0)})}{m_0}</annotation></semantics></math>
 always holds (by Cauchy–Schwarz), so the DiP family structurally
 dominates the PPI family in the unobserved variance component regardless
 of the sign of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)})</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)})</annotation></semantics></math>.
 Negative correlation merely <em>shrinks</em> DiP’s advantage relative to
 the positive-correlation case.</p>
 </div>
@@ -372,7 +374,7 @@ unobserved units.</p>
 <span><span class="co">#&gt;         dt  0.0022 0.013479 0.013477         </span></span>
 <span><span class="co">#&gt;        dip  0.0026 0.018447 0.018445         </span></span>
 <span><span class="co">#&gt;     dip_pp  0.0008 0.014143 0.014137         </span></span>
-<span><span class="co">#&gt;     dt_dip  0.0008 0.012518 0.012512  &lt;-- min</span></span>
+<span><span class="co">#&gt;     dt_dip  0.0006 0.012240 0.012235  &lt;-- min</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Lowest variance: dt_dip</span></span></code></pre></div>
 <p><strong>Why</strong>: A single
@@ -393,14 +395,14 @@ unobserved units rather than splitting by arm.</p>
 <h2 id="scenario-4-high-common-mode-error">Scenario 4: High Common-Mode Error<a class="anchor" aria-label="anchor" href="#scenario-4-high-common-mode-error"></a>
 </h2>
 <p>When predictions for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
 share a large common error component (e.g., the LLM has a stable
 unit-level bias that cancels in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">S^{(1)} - S^{(0)}</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">S^{(1)} - S^{(0)}</annotation></semantics></math>),
 the DiP family exploits
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)}) &gt; 0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(S^{(1)}, S^{(0)}) &gt; 0</annotation></semantics></math>
 to reduce the unobserved variance component.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dgp_high_common_mode</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
@@ -443,19 +445,19 @@ to reduce the unobserved variance component.</p>
 <span><span class="co">#&gt;         dt  0.0011 0.012251 0.012246         </span></span>
 <span><span class="co">#&gt;        dip  0.0013 0.013026 0.013021         </span></span>
 <span><span class="co">#&gt;     dip_pp  0.0007 0.008676 0.008672  &lt;-- min</span></span>
-<span><span class="co">#&gt;     dt_dip  0.0005 0.008817 0.008813         </span></span>
+<span><span class="co">#&gt;     dt_dip  0.0005 0.008783 0.008779         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Lowest variance: dip_pp</span></span></code></pre></div>
 <p><strong>Why</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)})</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(0)})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(0)})</annotation></semantics></math>
 are inflated by the common error, which hurts PPI++/D-T through the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>S</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S)/m</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S)/m</annotation></semantics></math>
 term. But
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Var}(S^{(1)} - S^{(0)})</annotation></semantics></math>
 cancels the common error, so the DiP unobserved term
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S^{(1)} - S^{(0)})/m</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\lambda^2 \text{Var}(S^{(1)} - S^{(0)})/m</annotation></semantics></math>
 is much smaller.</p>
 </div>
 <div class="section level2">
@@ -505,7 +507,7 @@ common-mode error (favoring DiP) but quality differs across arms
 <span><span class="co">#&gt;         dt  0.0001 0.017206 0.017197         </span></span>
 <span><span class="co">#&gt;        dip  0.0007 0.039094 0.039075         </span></span>
 <span><span class="co">#&gt;     dip_pp -0.0004 0.016770 0.016762         </span></span>
-<span><span class="co">#&gt;     dt_dip  0.0001 0.016635 0.016627  &lt;-- min</span></span>
+<span><span class="co">#&gt;     dt_dip  0.0000 0.016498 0.016490  &lt;-- min</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Lowest variance: dt_dip</span></span></code></pre></div>
 <p><strong>Why</strong>: D-T DiP can set
@@ -514,7 +516,7 @@ large (good treatment predictions) and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_0</annotation></semantics></math>
 small (noisy control predictions), while still exploiting the
 common-mode cancellation in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mn>1</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\lambda_1 S^{(1)} - \lambda_0 S^{(0)}</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mn>1</mn></msub><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\lambda_1 S^{(1)} - \lambda_0 S^{(0)}</annotation></semantics></math>.</p>
 </div>
 <div class="section level2">
 <h2 id="scenario-6-near-perfect-predictions">Scenario 6: Near-Perfect Predictions<a class="anchor" aria-label="anchor" href="#scenario-6-near-perfect-predictions"></a>
@@ -574,7 +576,7 @@ unobserved units.</p>
 <span><span class="co">#&gt;         dt  4e-04 0.007131 0.007127         </span></span>
 <span><span class="co">#&gt;        dip -6e-04 0.000446 0.000446  &lt;-- min</span></span>
 <span><span class="co">#&gt;     dip_pp -4e-04 0.000454 0.000454         </span></span>
-<span><span class="co">#&gt;     dt_dip -6e-04 0.000464 0.000464         </span></span>
+<span><span class="co">#&gt;     dt_dip -6e-04 0.000462 0.000462         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Lowest variance: dip</span></span></code></pre></div>
 <p><strong>Why</strong>: When
@@ -656,8 +658,8 @@ DGP?</caption>
 </tr>
 <tr class="even">
 <td align="left">2: Neg corr predictions</td>
-<td align="left">dip_pp</td>
-<td align="right">0.00730</td>
+<td align="left">dt_dip</td>
+<td align="right">0.00729</td>
 <td align="right">0.00730</td>
 <td align="right">0.02218</td>
 <td align="right">67.1</td>
@@ -665,10 +667,10 @@ DGP?</caption>
 <tr class="odd">
 <td align="left">3: Heterogeneous quality</td>
 <td align="left">dt_dip</td>
-<td align="right">0.01251</td>
-<td align="right">0.01252</td>
+<td align="right">0.01223</td>
+<td align="right">0.01224</td>
 <td align="right">0.01949</td>
-<td align="right">35.8</td>
+<td align="right">37.2</td>
 </tr>
 <tr class="even">
 <td align="left">4: High common-mode error</td>
@@ -681,10 +683,10 @@ DGP?</caption>
 <tr class="odd">
 <td align="left">5: Common-mode + hetero</td>
 <td align="left">dt_dip</td>
-<td align="right">0.01663</td>
-<td align="right">0.01664</td>
+<td align="right">0.01649</td>
+<td align="right">0.01650</td>
 <td align="right">0.01949</td>
-<td align="right">14.6</td>
+<td align="right">15.3</td>
 </tr>
 <tr class="even">
 <td align="left">6: Near-perfect</td>

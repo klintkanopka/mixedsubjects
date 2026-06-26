@@ -37,15 +37,15 @@ automatically adjust for this bias using the human subjects data.
 The `mixedsubjects` package implements seven estimators for the Average
 Treatment Effect (ATE) in mixed-subjects designs:
 
-| Estimator   | Description                          | Predictions Needed |
-|-------------|--------------------------------------|--------------------|
-| **DiM**     | Difference-in-Means                  | None               |
-| **GREG**    | Calibration estimator                | 1 per unit         |
-| **PPI++**   | Power-tuned, single $\lambda$        | 1 per unit         |
-| **D-T**     | Doubly-tuned, arm-specific $\lambda$ | 1 per unit         |
-| **DiP**     | Difference-in-Predictions            | 2 per unit         |
-| **DiP++**   | Power-tuned DiP                      | 2 per unit         |
-| **D-T DiP** | Doubly-tuned DiP                     | 2 per unit         |
+| Estimator   | Description                            | Predictions Needed |
+|-------------|----------------------------------------|--------------------|
+| **DiM**     | Difference-in-Means                    | None               |
+| **GREG**    | Calibration estimator                  | 1 per unit         |
+| **PPI++**   | Power-tuned, single $`\lambda`$        | 1 per unit         |
+| **D-T**     | Doubly-tuned, arm-specific $`\lambda`$ | 1 per unit         |
+| **DiP**     | Difference-in-Predictions              | 2 per unit         |
+| **DiP++**   | Power-tuned DiP                        | 2 per unit         |
+| **D-T DiP** | Doubly-tuned DiP                       | 2 per unit         |
 
 The package also helps you **design optimal experiments** by determining
 how to allocate your budget between human subjects and LLM predictions.
@@ -53,6 +53,7 @@ how to allocate your budget between human subjects and LLM predictions.
 ## Installation
 
 ``` r
+
 # Install from github
 devtools::install_github('klintkanopka/mixedsubjects')
 ```
@@ -72,6 +73,7 @@ message changes attitudes. You have:
   answered
 
 ``` r
+
 set.seed(123)
 
 # True treatment effect
@@ -115,6 +117,7 @@ unobserved_df <- data.frame(
 First, we combine our data into an `msd_data` object:
 
 ``` r
+
 msd <- msd_data(observed = observed_df, unobserved = unobserved_df)
 print(msd)
 #> 
@@ -150,6 +153,7 @@ print(msd)
 Now let’s estimate the ATE using different estimators:
 
 ``` r
+
 # Classical difference-in-means (ignores predictions)
 result_dim <- msd_dim(msd)
 
@@ -170,12 +174,12 @@ cat("  95% CI: [", round(result_dim$ci_lower, 3), ", ",
 cat("D-T DiP:\n")
 #> D-T DiP:
 cat("  Estimate:", round(result_dt_dip$estimate, 3), "\n")
-#>   Estimate: 0.168
+#>   Estimate: 0.177
 cat("  SE:", round(result_dt_dip$se, 3), "\n")
-#>   SE: 0.097
+#>   SE: 0.096
 cat("  95% CI: [", round(result_dt_dip$ci_lower, 3), ", ",
     round(result_dt_dip$ci_upper, 3), "]\n")
-#>   95% CI: [ -0.022 ,  0.357 ]
+#>   95% CI: [ -0.012 ,  0.366 ]
 ```
 
 Notice that the D-T DiP estimator has a **smaller standard error** than
@@ -205,8 +209,8 @@ The package distinguishes between two prediction setups:
 **Setup 1: Arm-specific predictions (1 prediction per unit)**
 
 Each unit only has the prediction for their assigned treatment
-condition: - Treated units have $S^{(1)}$ (prediction of their outcome
-under treatment) - Control units have $S^{(0)}$ (prediction of their
+condition: - Treated units have $`S^{(1)}`$ (prediction of their outcome
+under treatment) - Control units have $`S^{(0)}`$ (prediction of their
 outcome under control)
 
 This is typical when you ask the LLM to predict each unit’s response to
@@ -214,8 +218,9 @@ their actual assigned condition.
 
 **Setup 2: Both predictions (2 predictions per unit)**
 
-Each unit has predictions for *both* conditions: - $S^{(1)}$: Prediction
-of outcome if treated - $S^{(0)}$: Prediction of outcome if in control
+Each unit has predictions for *both* conditions: - $`S^{(1)}`$:
+Prediction of outcome if treated - $`S^{(0)}`$: Prediction of outcome if
+in control
 
 This requires asking the LLM to predict each unit’s response under both
 conditions, which doubles the prediction cost but enables the DiP family
@@ -230,6 +235,7 @@ function accepts data in two formats:
 **Option 1: Separate dataframes**
 
 ``` r
+
 msd <- msd_data(
   observed = observed_df,    # Must have Y, D, and optionally S0, S1
   unobserved = unobserved_df # Must have D and S0, S1 (no Y)
@@ -242,6 +248,7 @@ If your data is in a single dataframe where unobserved units have
 `Y = NA`:
 
 ``` r
+
 # Combine into single dataframe
 combined_df <- rbind(
   observed_df,
@@ -287,6 +294,7 @@ By default, the package expects columns named `Y` (outcome), `D`
 If your columns use different names, specify them explicitly:
 
 ``` r
+
 # Custom column names
 my_data <- data.frame(
   response_var = rnorm(100),
@@ -308,6 +316,7 @@ You can even use different column names for observed and unobserved
 data:
 
 ``` r
+
 msd <- msd_data(
   observed = obs_df,
   unobserved = unobs_df,
@@ -328,6 +337,7 @@ the estimator functions. This is similar to the syntax used by `ivreg`
 and other regression packages:
 
 ``` r
+
 # Formula: outcome ~ treatment | predictions
 # Using custom column names directly in the estimator
 
@@ -348,6 +358,7 @@ For DiM (which doesn’t use predictions), you can omit the prediction
 part:
 
 ``` r
+
 result <- msd_dim(response ~ treated, observed = obs_df)
 ```
 
@@ -357,11 +368,14 @@ result <- msd_dim(response ~ treated, observed = obs_df)
 
 The classical estimator that ignores LLM predictions entirely:
 
-$${\widehat{\tau}}^{DiM} = {\bar{Y}}_{1} - {\bar{Y}}_{0}$$
+``` math
+\hat{\tau}^{DiM} = \bar{Y}_1 - \bar{Y}_0
+```
 
 Use this as your baseline. It’s unbiased and requires no predictions.
 
 ``` r
+
 result <- msd_dim(msd)
 print(result)
 #> 
@@ -381,12 +395,15 @@ print(result)
 
 GREG uses predictions to “calibrate” the estimate:
 
-$${\widehat{\tau}}^{GREG} = \left\lbrack {\bar{S}}_{U}^{(1)} + \left( {\bar{Y}}_{1} - {\bar{S}}_{O_{1}}^{(1)} \right) \right\rbrack - \left\lbrack {\bar{S}}_{U}^{(0)} + \left( {\bar{Y}}_{0} - {\bar{S}}_{O_{0}}^{(0)} \right) \right\rbrack$$
+``` math
+\hat{\tau}^{GREG} = \left[\bar{S}^{(1)}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1})\right] - \left[\bar{S}^{(0)}_U + (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})\right]
+```
 
 This adjusts the prediction mean by the observed “rectifier” (the
 average prediction error in the labeled data).
 
 ``` r
+
 result <- msd_greg(msd)
 print(result)
 #> 
@@ -409,14 +426,17 @@ print(result)
 ### 3. PPI++ (Power-Tuned)
 
 PPI++ improves on GREG by estimating an optimal tuning parameter
-$\lambda$:
+$`\lambda`$:
 
-$${\widehat{\mu}}_{d}^{PPI}(\lambda) = {\bar{Y}}_{d} + \lambda\left( {\bar{S}}_{U}^{(d)} - {\bar{S}}_{O}^{(d)} \right)$$
+``` math
+\hat{\mu}_d^{PPI}(\lambda) = \bar{Y}_d + \lambda(\bar{S}^{(d)}_U - \bar{S}^{(d)}_O)
+```
 
-When $\lambda = 1$, this equals GREG. PPI++ estimates $\lambda$ to
+When $`\lambda = 1`$, this equals GREG. PPI++ estimates $`\lambda`$ to
 minimize variance using cross-fitting.
 
 ``` r
+
 result <- msd_ppi(msd, n_folds = 2)
 print(result)
 #> 
@@ -438,15 +458,18 @@ print(result)
 
 ### 4. D-T (Doubly-Tuned)
 
-D-T uses separate tuning parameters for each arm ($\lambda_{1}$ for
-treatment, $\lambda_{0}$ for control):
+D-T uses separate tuning parameters for each arm ($`\lambda_1`$ for
+treatment, $`\lambda_0`$ for control):
 
-$${\widehat{\tau}}^{D - T} = {\widehat{\mu}}_{1}^{PPI}\left( \lambda_{1} \right) - {\widehat{\mu}}_{0}^{PPI}\left( \lambda_{0} \right)$$
+``` math
+\hat{\tau}^{D-T} = \hat{\mu}_1^{PPI}(\lambda_1) - \hat{\mu}_0^{PPI}(\lambda_0)
+```
 
 This is useful when prediction quality differs between treatment and
 control conditions.
 
 ``` r
+
 result <- msd_dt(msd, n_folds = 2)
 print(result)
 #> 
@@ -469,16 +492,19 @@ print(result)
 
 ### 5. DiP (Difference-in-Predictions)
 
-DiP uses the *contrast* $S^{(1)} - S^{(0)}$ for each unlabeled unit:
+DiP uses the *contrast* $`S^{(1)} - S^{(0)}`$ for each unlabeled unit:
 
-$${\widehat{\tau}}^{DiP} = {\overline{S^{(1)} - S^{(0)}}}_{U} + \left( {\bar{Y}}_{1} - {\bar{S}}_{O_{1}}^{(1)} \right) - \left( {\bar{Y}}_{0} - {\bar{S}}_{O_{0}}^{(0)} \right)$$
+``` math
+\hat{\tau}^{DiP} = \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})
+```
 
-**Key insight**: When $S^{(1)}$ and $S^{(0)}$ are positively correlated
-(which they often are—units that score high under treatment also tend to
-score high under control), the variance of their difference is smaller
-than the sum of their individual variances.
+**Key insight**: When $`S^{(1)}`$ and $`S^{(0)}`$ are positively
+correlated (which they often are—units that score high under treatment
+also tend to score high under control), the variance of their difference
+is smaller than the sum of their individual variances.
 
 ``` r
+
 result <- msd_dip(msd)
 print(result)
 #> 
@@ -500,11 +526,15 @@ print(result)
 
 ### 6. DiP++ (Power-Tuned DiP)
 
-DiP++ applies power-tuning to the DiP estimator with a single $\lambda$:
+DiP++ applies power-tuning to the DiP estimator with a single
+$`\lambda`$:
 
-$${\widehat{\tau}}^{DiP + +}(\lambda) = \lambda \cdot {\overline{S^{(1)} - S^{(0)}}}_{U} + \left( {\bar{Y}}_{1} - \lambda{\bar{S}}_{O_{1}}^{(1)} \right) - \left( {\bar{Y}}_{0} - \lambda{\bar{S}}_{O_{0}}^{(0)} \right)$$
+``` math
+\hat{\tau}^{DiP++}(\lambda) = \lambda \cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda\bar{S}^{(0)}_{O_0})
+```
 
 ``` r
+
 result <- msd_dip_pp(msd, n_folds = 2)
 print(result)
 #> 
@@ -528,9 +558,12 @@ print(result)
 
 The most flexible estimator combines DiP with arm-specific tuning:
 
-$${\widehat{\tau}}^{D - T\ DiP} = {\overline{\lambda_{1}S^{(1)} - \lambda_{0}S^{(0)}}}_{U} + \left( {\bar{Y}}_{1} - \lambda_{1}{\bar{S}}_{O_{1}}^{(1)} \right) - \left( {\bar{Y}}_{0} - \lambda_{0}{\bar{S}}_{O_{0}}^{(0)} \right)$$
+``` math
+\hat{\tau}^{D-T\ DiP} = \overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 - \lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda_0\bar{S}^{(0)}_{O_0})
+```
 
 ``` r
+
 result <- msd_dt_dip(msd, n_folds = 2)
 print(result)
 #> 
@@ -538,13 +571,13 @@ print(result)
 #> =================================
 #> Estimator: D-T DiP (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.1571 
-#> Standard Error:  0.0966 
-#> 95% CI:         [-0.0323, 0.3465]
+#> Point Estimate:  0.1699 
+#> Standard Error:  0.0965 
+#> 95% CI:         [-0.0192, 0.3589]
 #> 
 #> Tuning Parameters:
-#>   lambda_1 (treatment):  0.9944 
-#>   lambda_0 (control):    0.8544 
+#>   lambda_1 (treatment):  0.9518 
+#>   lambda_0 (control):    0.8377 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -558,6 +591,7 @@ Use
 to run all applicable estimators at once:
 
 ``` r
+
 all_results <- estimate_all(msd)
 print(all_results)
 #> 
@@ -571,7 +605,7 @@ print(all_results)
 #>           D-T (Doubly-Tuned, cross-fit, K=2)   0.3585 0.1034       0.1557
 #>  DiP (Difference-in-Predictions, lambda = 1)   0.1454 0.0976      -0.0459
 #>                       DiP++ (cross-fit, K=2)   0.1893 0.0965       0.0002
-#>                     D-T DiP (cross-fit, K=2)   0.1772 0.0966      -0.0121
+#>                     D-T DiP (cross-fit, K=2)   0.1870 0.0964      -0.0020
 #>  95% CI Upper
 #>        0.7586
 #>        0.5410
@@ -579,7 +613,7 @@ print(all_results)
 #>        0.5612
 #>        0.3367
 #>        0.3785
-#>        0.3665
+#>        0.3760
 ```
 
 ## Choosing the Right Estimator
@@ -605,13 +639,14 @@ Here’s a practical guide for choosing an estimator:
 The DiP family (DiP, DiP++, D-T DiP) is most beneficial when:
 
 1.  **Predictions are positively correlated**:
-    $Cov\left( S^{(1)},S^{(0)} \right) > 0$
+    $`Cov(S^{(1)}, S^{(0)}) > 0`$
 2.  **You can afford 2 predictions per unit**: This doubles the
     prediction cost
 
 You can check the correlation in your pilot data:
 
 ``` r
+
 cor(unobserved_df$S1, unobserved_df$S0)
 #> [1] 0.52053
 ```
@@ -632,6 +667,7 @@ derived in the accompanying paper.
 For robustness, you can also use the fold-respecting bootstrap:
 
 ``` r
+
 # Bootstrap variance for D-T DiP
 boot_result <- bootstrap_variance(
   msd,
@@ -641,9 +677,9 @@ boot_result <- bootstrap_variance(
 )
 
 cat("Delta-method SE:", round(result_dt_dip$se, 4), "\n")
-#> Delta-method SE: 0.0966
+#> Delta-method SE: 0.0965
 cat("Bootstrap SE:", round(boot_result$se, 4), "\n")
-#> Bootstrap SE: 0.0962
+#> Bootstrap SE: 0.0975
 ```
 
 The bootstrap is computationally more expensive but provides a useful
@@ -655,8 +691,8 @@ check on the delta-method variance.
 
 Before running your experiment, you need to decide:
 
-1.  **How many human subjects** to recruit ($n_{O}$)
-2.  **How many LLM predictions** to generate ($n_{U}$)
+1.  **How many human subjects** to recruit ($`n_O`$)
+2.  **How many LLM predictions** to generate ($`n_U`$)
 3.  **Which estimator** to use
 
 These decisions depend on: - Your **total budget** - The **cost per
@@ -671,6 +707,7 @@ function finds the allocation that minimizes expected variance given
 your budget constraints:
 
 ``` r
+
 design <- optimal_design(
   pilot_data = msd,          # Pilot study data
   budget = 5000,             # Total budget in dollars
@@ -739,6 +776,7 @@ research:
 Run a small pilot study with both human subjects and LLM predictions:
 
 ``` r
+
 # Collect pilot data
 pilot_observed <- collect_human_responses(n = 100)
 pilot_observed$S1 <- get_llm_predictions(pilot_observed, condition = "treatment")
@@ -756,6 +794,7 @@ pilot_msd <- msd_data(observed = pilot_observed, unobserved = pilot_unobserved)
 Examine how well LLM predictions correlate with actual outcomes:
 
 ``` r
+
 # Check correlations
 pilot_results <- estimate_all(pilot_msd)
 print(pilot_results)
@@ -772,6 +811,7 @@ cat("Potential variance reduction:", round(variance_reduction * 100, 1), "%\n")
 Use the pilot data to design your main study:
 
 ``` r
+
 design <- optimal_design(
   pilot_data = pilot_msd,
   budget = 10000,
@@ -786,6 +826,7 @@ print(design)
 Collect data according to your design:
 
 ``` r
+
 # Collect human responses
 main_observed <- collect_human_responses(n = design$optimal_n_obs)
 
@@ -805,6 +846,7 @@ main_msd <- msd_data(observed = main_observed, unobserved = main_unobserved)
 Estimate the treatment effect using the recommended estimator:
 
 ``` r
+
 # Run the recommended estimator
 result <- msd_dt_dip(main_msd)  # Or whichever was recommended
 print(result)
@@ -825,8 +867,9 @@ unbiased estimates with valid confidence intervals.
 ### Q: How much do predictions need to correlate with outcomes?
 
 **A**: Any positive correlation helps, but more is better. As a rough
-guide: - $\rho > 0.3$: Modest variance reduction - $\rho > 0.5$:
-Substantial variance reduction - $\rho > 0.7$: Large variance reduction
+guide: - $`\rho > 0.3`$: Modest variance reduction - $`\rho > 0.5`$:
+Substantial variance reduction - $`\rho > 0.7`$: Large variance
+reduction
 
 You can estimate this correlation from your pilot data.
 
@@ -840,7 +883,7 @@ bias. The default `n_folds = 2` works well in most cases.
 ### Q: What if predictions are worse in one treatment arm?
 
 **A**: Use the D-T or D-T DiP estimators. These use arm-specific tuning
-parameters ($\lambda_{1}$ and $\lambda_{0}$), which automatically adapt
+parameters ($`\lambda_1`$ and $`\lambda_0`$), which automatically adapt
 to different prediction quality across arms.
 
 ### Q: How many folds should I use for cross-fitting?
@@ -876,13 +919,19 @@ The MSD estimators require:
 For reference, the variance formulas for key estimators:
 
 **DiM**:
-$$Var\left( {\widehat{\tau}}^{DiM} \right) = \frac{\sigma_{Y{(1)}}^{2}}{n_{1}} + \frac{\sigma_{Y{(0)}}^{2}}{n_{0}}$$
+``` math
+Var(\hat{\tau}^{DiM}) = \frac{\sigma^2_{Y(1)}}{n_1} + \frac{\sigma^2_{Y(0)}}{n_0}
+```
 
 **GREG**:
-$$Var\left( {\widehat{\tau}}^{GREG} \right) = \sum\limits_{d \in \{ 0,1\}}\left\lbrack \frac{\sigma_{S^{(d)}}^{2}}{m_{d}} + \frac{Var\left( Y(d) - S^{(d)} \right)}{n_{d}} \right\rbrack$$
+``` math
+Var(\hat{\tau}^{GREG}) = \sum_{d \in \{0,1\}} \left[\frac{\sigma^2_{S^{(d)}}}{m_d} + \frac{Var(Y(d) - S^{(d)})}{n_d}\right]
+```
 
 **DiP**:
-$$Var\left( {\widehat{\tau}}^{DiP} \right) = \frac{Var\left( S^{(1)} - S^{(0)} \right)}{m} + \sum\limits_{d \in \{ 0,1\}}\frac{Var\left( Y(d) - S^{(d)} \right)}{n_{d}}$$
+``` math
+Var(\hat{\tau}^{DiP}) = \frac{Var(S^{(1)} - S^{(0)})}{m} + \sum_{d \in \{0,1\}} \frac{Var(Y(d) - S^{(d)})}{n_d}
+```
 
 The tuned estimators (PPI++, D-T, DiP++, D-T DiP) have more complex
 variance formulas that account for the estimation of tuning parameters.
@@ -897,8 +946,9 @@ If you use this package in your research, please cite:
 ## Session Info
 
 ``` r
+
 sessionInfo()
-#> R version 4.5.3 (2026-03-11)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.4 LTS
 #> 
@@ -923,10 +973,10 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          fastmap_1.2.0    
-#>  [5] xfun_0.57         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  
+#>  [5] xfun_0.59         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  
 #>  [9] rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      
 #> [13] pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.2
-#> [17] compiler_4.5.3    tools_4.5.3       ragg_1.5.2        evaluate_1.0.5   
-#> [21] bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0    rlang_1.2.0      
-#> [25] fs_2.0.1
+#> [17] compiler_4.6.1    tools_4.6.1       ragg_1.5.2        bslib_0.11.0     
+#> [21] evaluate_1.0.5    yaml_2.3.12       otel_0.2.0        jsonlite_2.0.0   
+#> [25] rlang_1.2.0       fs_2.1.0
 ```

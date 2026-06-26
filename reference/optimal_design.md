@@ -111,7 +111,6 @@ from the pilot data.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # Pilot study data
 pilot_obs <- data.frame(
   Y = rnorm(50),
@@ -134,5 +133,35 @@ design <- optimal_design(
   cost_prediction = 0.01 # $0.01 per prediction
 )
 print(design)
-} # }
+#> 
+#> Optimal Mixed-Subjects Design
+#> ==============================
+#> 
+#> Recommended Design:
+#>   Estimator:         DT 
+#>   Observed units:    990 
+#>     - Treated:       495 
+#>     - Control:       495 
+#>   Unobserved units:  10000 
+#> 
+#> Expected Performance:
+#>   Variance:  0.0051 
+#>   SE:        0.0712 
+#> 
+#> Budget:
+#>   Total:    $10,000
+#>   Used:     $10,000
+#>   Human:    $10/observation
+#>   Predict:  $0.01/prediction
+#> 
+#> Comparison Across Estimators:
+#>  Estimator n_obs n_unobs     SE
+#>        DIM  1000       0 0.0724
+#>       GREG   980   20000 0.0977
+#>        PPI   990   10000 0.0727
+#>         DT   990   10000 0.0712
+#>        DIP   980   10000 0.0979
+#>     DIP_PP   990    5000 0.0727
+#>     DT_DIP   990    5000 0.0712
+#> 
 ```

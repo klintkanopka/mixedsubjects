@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to Mixed-Subjects Designs with the mixedsubjects Package • mixedsubjects</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to Mixed-Subjects Designs with the mixedsubjects Package">
 </head>
@@ -37,11 +37,13 @@
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to Mixed-Subjects Designs with the mixedsubjects Package</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/klintkanopka/mixedsubjects/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -59,9 +61,9 @@
                         <h4 data-toc-skip class="author">Austin van Loon
 and Klint Kanopka</h4>
             
-            <h4 data-toc-skip class="date">2026-04-14</h4>
+            <h4 data-toc-skip class="date">2026-06-26</h4>
       
-
+      <small class="dont-index">Source: <a href="https://github.com/klintkanopka/mixedsubjects/blob/main/vignettes/introduction.Rmd" class="external-link"><code>vignettes/introduction.Rmd</code></a></small>
       <div class="d-none name"><code>introduction.Rmd</code></div>
     </div>
 
@@ -284,12 +286,12 @@ would have answered</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"D-T DiP:\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; D-T DiP:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  Estimate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result_dt_dip</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Estimate: 0.168</span></span>
+<span><span class="co">#&gt;   Estimate: 0.177</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  SE:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result_dt_dip</span><span class="op">$</span><span class="va">se</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   SE: 0.097</span></span>
+<span><span class="co">#&gt;   SE: 0.096</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  95% CI: ["</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result_dt_dip</span><span class="op">$</span><span class="va">ci_lower</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", "</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result_dt_dip</span><span class="op">$</span><span class="va">ci_upper</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"]\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   95% CI: [ -0.022 ,  0.357 ]</span></span></code></pre></div>
+<span><span class="co">#&gt;   95% CI: [ -0.012 ,  0.366 ]</span></span></code></pre></div>
 <p>Notice that the D-T DiP estimator has a <strong>smaller standard
 error</strong> than difference-in-means, even though both use the same
 human subjects data. This variance reduction comes from leveraging the
@@ -337,18 +339,18 @@ only have LLM predictions
 unit)</strong></p>
 <p>Each unit only has the prediction for their assigned treatment
 condition: - Treated units have
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
 (prediction of their outcome under treatment) - Control units have
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
 (prediction of their outcome under control)</p>
 <p>This is typical when you ask the LLM to predict each unit’s response
 to their actual assigned condition.</p>
 <p><strong>Setup 2: Both predictions (2 predictions per
 unit)</strong></p>
 <p>Each unit has predictions for <em>both</em> conditions: -
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>:
 Prediction of outcome if treated -
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>:
 Prediction of outcome if in control</p>
 <p>This requires asking the LLM to predict each unit’s response under
 both conditions, which doubles the prediction cost but enables the DiP
@@ -500,7 +502,7 @@ predictions.</p>
 <h3 id="greg-calibration-estimator">2. GREG (Calibration Estimator)<a class="anchor" aria-label="anchor" href="#greg-calibration-estimator"></a>
 </h3>
 <p>GREG uses predictions to “calibrate” the estimate:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>G</mi><mi>R</mi><mi>E</mi><mi>G</mi></mrow></msup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{GREG} = \left[\bar{S}^{(1)}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1})\right] - \left[\bar{S}^{(0)}_U + (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})\right]</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>G</mi><mi>R</mi><mi>E</mi><mi>G</mi></mrow></msup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{GREG} = \left[\bar{S}^{(1)}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1})\right] - \left[\bar{S}^{(0)}_U + (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})\right]</annotation></semantics></math></p>
 <p>This adjusts the prediction mean by the observed “rectifier” (the
 average prediction error in the labeled data).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -527,7 +529,7 @@ average prediction error in the labeled data).</p>
 </h3>
 <p>PPI++ improves on GREG by estimating an optimal tuning parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>d</mi><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo>+</mo><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu}_d^{PPI}(\lambda) = \bar{Y}_d + \lambda(\bar{S}^{(d)}_U - \bar{S}^{(d)}_O)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>d</mi><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo>+</mo><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>U</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><mi>O</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\mu}_d^{PPI}(\lambda) = \bar{Y}_d + \lambda(\bar{S}^{(d)}_U - \bar{S}^{(d)}_O)</annotation></semantics></math></p>
 <p>When
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lambda = 1</annotation></semantics></math>,
 this equals GREG. PPI++ estimates
@@ -560,7 +562,7 @@ to minimize variance using cross-fitting.</p>
 for treatment,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_0</annotation></semantics></math>
 for control):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mo>−</mo><mi>T</mi></mrow></msup><mo>=</mo><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{D-T} = \hat{\mu}_1^{PPI}(\lambda_1) - \hat{\mu}_0^{PPI}(\lambda_0)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mo>−</mo><mi>T</mi></mrow></msup><mo>=</mo><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn><mrow><mi>P</mi><mi>P</mi><mi>I</mi></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\tau}^{D-T} = \hat{\mu}_1^{PPI}(\lambda_1) - \hat{\mu}_0^{PPI}(\lambda_0)</annotation></semantics></math></p>
 <p>This is useful when prediction quality differs between treatment and
 control conditions.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -587,13 +589,13 @@ control conditions.</p>
 <h3 id="dip-difference-in-predictions">5. DiP (Difference-in-Predictions)<a class="anchor" aria-label="anchor" href="#dip-difference-in-predictions"></a>
 </h3>
 <p>DiP uses the <em>contrast</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">S^{(1)} - S^{(0)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">S^{(1)} - S^{(0)}</annotation></semantics></math>
 for each unlabeled unit:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo>=</mo><msub><mover><mrow><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{DiP} = \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo>=</mo><msub><mover><mrow><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\tau}^{DiP} = \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
 <p><strong>Key insight</strong>: When
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(1)}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">S^{(0)}</annotation></semantics></math>
 are positively correlated (which they often are—units that score high
 under treatment also tend to score high under control), the variance of
 their difference is smaller than the sum of their individual
@@ -622,7 +624,7 @@ variances.</p>
 </h3>
 <p>DiP++ applies power-tuning to the DiP estimator with a single
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi><mo>+</mo><mo>+</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>λ</mi><mo>⋅</mo><msub><mover><mrow><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{DiP++}(\lambda) = \lambda \cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi><mo>+</mo><mi>+</mi></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mo>⋅</mo><msub><mover><mrow><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><mi>λ</mi><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\tau}^{DiP++}(\lambda) = \lambda \cdot \overline{S^{(1)} - S^{(0)}}_U + (\bar{Y}_1 - \lambda\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dip_pp.html">msd_dip_pp</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
@@ -647,7 +649,7 @@ variances.</p>
 </h3>
 <p>The most flexible estimator combines DiP with arm-specific
 tuning:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mo>−</mo><mi>T</mi><mspace width="0.222em"></mspace><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo>=</mo><msub><mover><mrow><msub><mi>λ</mi><mn>1</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>1</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\tau}^{D-T\ DiP} = \overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 - \lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda_0\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mo>−</mo><mi>T</mi><mspace width="0.222em"></mspace><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo>=</mo><msub><mover><mrow><msub><mi>λ</mi><mn>1</mn></msub><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><mo accent="true">¯</mo></mover><mi>U</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>1</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>1</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>Y</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msubsup><mover><mi>S</mi><mo accent="true">‾</mo></mover><msub><mi>O</mi><mn>0</mn></msub><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\tau}^{D-T\ DiP} = \overline{\lambda_1 S^{(1)} - \lambda_0 S^{(0)}}_U + (\bar{Y}_1 - \lambda_1\bar{S}^{(1)}_{O_1}) - (\bar{Y}_0 - \lambda_0\bar{S}^{(0)}_{O_0})</annotation></semantics></math></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/msd_dt_dip.html">msd_dt_dip</a></span><span class="op">(</span><span class="va">msd</span>, n_folds <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
@@ -656,13 +658,13 @@ tuning:</p>
 <span><span class="co">#&gt; =================================</span></span>
 <span><span class="co">#&gt; Estimator: D-T DiP (cross-fit, K=2) </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Point Estimate:  0.1571 </span></span>
-<span><span class="co">#&gt; Standard Error:  0.0966 </span></span>
-<span><span class="co">#&gt; 95% CI:         [-0.0323, 0.3465]</span></span>
+<span><span class="co">#&gt; Point Estimate:  0.1699 </span></span>
+<span><span class="co">#&gt; Standard Error:  0.0965 </span></span>
+<span><span class="co">#&gt; 95% CI:         [-0.0192, 0.3589]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Tuning Parameters:</span></span>
-<span><span class="co">#&gt;   lambda_1 (treatment):  0.9944 </span></span>
-<span><span class="co">#&gt;   lambda_0 (control):    0.8544 </span></span>
+<span><span class="co">#&gt;   lambda_1 (treatment):  0.9518 </span></span>
+<span><span class="co">#&gt;   lambda_0 (control):    0.8377 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sample Sizes:</span></span>
 <span><span class="co">#&gt;   Observed:   n_1=100, n_0=100</span></span>
@@ -687,7 +689,7 @@ once:</p>
 <span><span class="co">#&gt;           D-T (Doubly-Tuned, cross-fit, K=2)   0.3585 0.1034       0.1557</span></span>
 <span><span class="co">#&gt;  DiP (Difference-in-Predictions, lambda = 1)   0.1454 0.0976      -0.0459</span></span>
 <span><span class="co">#&gt;                       DiP++ (cross-fit, K=2)   0.1893 0.0965       0.0002</span></span>
-<span><span class="co">#&gt;                     D-T DiP (cross-fit, K=2)   0.1772 0.0966      -0.0121</span></span>
+<span><span class="co">#&gt;                     D-T DiP (cross-fit, K=2)   0.1870 0.0964      -0.0020</span></span>
 <span><span class="co">#&gt;  95% CI Upper</span></span>
 <span><span class="co">#&gt;        0.7586</span></span>
 <span><span class="co">#&gt;        0.5410</span></span>
@@ -695,7 +697,7 @@ once:</p>
 <span><span class="co">#&gt;        0.5612</span></span>
 <span><span class="co">#&gt;        0.3367</span></span>
 <span><span class="co">#&gt;        0.3785</span></span>
-<span><span class="co">#&gt;        0.3665</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.3760</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -724,7 +726,7 @@ once:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Predictions are positively correlated</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>o</mi><mi>v</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Cov(S^{(1)}, S^{(0)}) &gt; 0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>o</mi><mi>v</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Cov(S^{(1)}, S^{(0)}) &gt; 0</annotation></semantics></math>
 </li>
 <li>
 <strong>You can afford 2 predictions per unit</strong>: This doubles
@@ -762,9 +764,9 @@ formulas derived in the accompanying paper.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Delta-method SE:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result_dt_dip</span><span class="op">$</span><span class="va">se</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Delta-method SE: 0.0966</span></span>
+<span><span class="co">#&gt; Delta-method SE: 0.0965</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Bootstrap SE:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">boot_result</span><span class="op">$</span><span class="va">se</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Bootstrap SE: 0.0962</span></span></code></pre></div>
+<span><span class="co">#&gt; Bootstrap SE: 0.0975</span></span></code></pre></div>
 <p>The bootstrap is computationally more expensive but provides a useful
 check on the delta-method variance.</p>
 </div>
@@ -1039,11 +1041,11 @@ conditions</li>
 </h3>
 <p>For reference, the variance formulas for key estimators:</p>
 <p><strong>DiM</strong>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>M</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><msubsup><mi>σ</mi><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mn>2</mn></msubsup><msub><mi>n</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><msubsup><mi>σ</mi><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mn>2</mn></msubsup><msub><mi>n</mi><mn>0</mn></msub></mfrac></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{DiM}) = \frac{\sigma^2_{Y(1)}}{n_1} + \frac{\sigma^2_{Y(0)}}{n_0}</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>M</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><msubsup><mi>σ</mi><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msubsup><msub><mi>n</mi><mn>1</mn></msub></mfrac><mo>+</mo><mfrac><msubsup><mi>σ</mi><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msubsup><msub><mi>n</mi><mn>0</mn></msub></mfrac></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{DiM}) = \frac{\sigma^2_{Y(1)}}{n_1} + \frac{\sigma^2_{Y(0)}}{n_0}</annotation></semantics></math></p>
 <p><strong>GREG</strong>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>G</mi><mi>R</mi><mi>E</mi><mi>G</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>d</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><msubsup><mi>σ</mi><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mn>2</mn></msubsup><msub><mi>m</mi><mi>d</mi></msub></mfrac><mo>+</mo><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>n</mi><mi>d</mi></msub></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{GREG}) = \sum_{d \in \{0,1\}} \left[\frac{\sigma^2_{S^{(d)}}}{m_d} + \frac{Var(Y(d) - S^{(d)})}{n_d}\right]</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>G</mi><mi>R</mi><mi>E</mi><mi>G</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mrow><mi>d</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><msubsup><mi>σ</mi><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mn>2</mn></msubsup><msub><mi>m</mi><mi>d</mi></msub></mfrac><mo>+</mo><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><msub><mi>n</mi><mi>d</mi></msub></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{GREG}) = \sum_{d \in \{0,1\}} \left[\frac{\sigma^2_{S^{(d)}}}{m_d} + \frac{Var(Y(d) - S^{(d)})}{n_d}\right]</annotation></semantics></math></p>
 <p><strong>DiP</strong>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mi>m</mi></mfrac><mo>+</mo><munder><mo>∑</mo><mrow><mi>d</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>n</mi><mi>d</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{DiP}) = \frac{Var(S^{(1)} - S^{(0)})}{m} + \sum_{d \in \{0,1\}} \frac{Var(Y(d) - S^{(d)})}{n_d}</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mi>D</mi><mi>i</mi><mi>P</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mi>m</mi></mfrac><mo>+</mo><munder><mo>∑</mo><mrow><mi>d</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mfrac><mrow><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msup><mi>S</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><msub><mi>n</mi><mi>d</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">Var(\hat{\tau}^{DiP}) = \frac{Var(S^{(1)} - S^{(0)})}{m} + \sum_{d \in \{0,1\}} \frac{Var(Y(d) - S^{(d)})}{n_d}</annotation></semantics></math></p>
 <p>The tuned estimators (PPI++, D-T, DiP++, D-T DiP) have more complex
 variance formulas that account for the estimation of tuning
 parameters.</p>
@@ -1061,7 +1063,7 @@ Mixed-Subjects Designs. R package version 0.1.0.</code></pre>
 </h2>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.3 (2026-03-11)</span></span>
+<span><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
 <span><span class="co">#&gt; Running under: Ubuntu 24.04.4 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1086,12 +1088,12 @@ Mixed-Subjects Designs. R package version 0.1.0.</code></pre>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          fastmap_1.2.0    </span></span>
-<span><span class="co">#&gt;  [5] xfun_0.57         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  </span></span>
+<span><span class="co">#&gt;  [5] xfun_0.59         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  </span></span>
 <span><span class="co">#&gt;  [9] rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      </span></span>
 <span><span class="co">#&gt; [13] pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.2</span></span>
-<span><span class="co">#&gt; [17] compiler_4.5.3    tools_4.5.3       ragg_1.5.2        evaluate_1.0.5   </span></span>
-<span><span class="co">#&gt; [21] bslib_0.10.0      yaml_2.3.12       jsonlite_2.0.0    rlang_1.2.0      </span></span>
-<span><span class="co">#&gt; [25] fs_2.0.1</span></span></code></pre></div>
+<span><span class="co">#&gt; [17] compiler_4.6.1    tools_4.6.1       ragg_1.5.2        bslib_0.11.0     </span></span>
+<span><span class="co">#&gt; [21] evaluate_1.0.5    yaml_2.3.12       otel_0.2.0        jsonlite_2.0.0   </span></span>
+<span><span class="co">#&gt; [25] rlang_1.2.0       fs_2.1.0</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
