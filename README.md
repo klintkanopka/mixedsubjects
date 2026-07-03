@@ -1,6 +1,7 @@
 # mixedsubjects
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/mixedsubjects)](https://CRAN.R-project.org/package=mixedsubjects)
 [![R-CMD-check](https://github.com/klintkanopka/mixedsubjects/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/klintkanopka/mixedsubjects/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
@@ -10,9 +11,16 @@
 
 ## Installation
 
-Interested users can install using:
+The most recent CRAN release can be installed using:
 
+```r
+install.packages('mixedsubjects')
 ```
-# install.packages("remotes")
-remotes::install_github("klintkanopka/mixedsubjects")
+
+## Development version
+
+Adventurous users can install the current development version using:
+
+```r
+devtools::install_github('klintkanopka/mixedsubjects')
 ```
