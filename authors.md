@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/klintkanopka/mixedsubjects/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/klintkanopka/mixedsubjects/blob/v1.0.0/DESCRIPTION)
 
 van Loon A, Kanopka K (2026). *mixedsubjects: Causal Inference in
 Experiments with Mixed-Subjects Designs*. R package version 1.0.0,
