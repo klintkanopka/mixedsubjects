@@ -64,7 +64,8 @@ An msd_result object containing:
 
 - variance:
 
-  Estimated variance (delta-method)
+  Estimated variance of the cross-fit estimator (see the Variance
+  section)
 
 - se:
 
@@ -93,6 +94,13 @@ Each lambda_d is chosen to minimize the variance in arm d:
 \$\$\lambda_d^\* = \frac{Cov(Y(d), S^{(d)}) / n_d}{Var(S^{(d)})(1/m_d +
 1/n_d)}\$\$
 
+With cross-fitting, the arm mean is computed on each fold using a tuning
+estimated on the other folds' labeled data, and the fold-specific arm
+means are combined with weights equal to each fold's share of the arm's
+labeled units, \\\pi_d^{(k)} = n_d^{(k)} / n_d\\. The weights are
+returned in `additional$fold_weights`. They equal \\1/K\\ whenever an
+arm's labeled sample size is divisible by the number of folds.
+
 The tuning parameters are estimated via cross-fitting to avoid bias.
 
 ## Note
@@ -100,6 +108,27 @@ The tuning parameters are estimated via cross-fitting to avoid bias.
 D-T differs from PPI++ by using separate tuning parameters for each arm,
 which can improve efficiency when the prediction quality differs between
 treatment and control.
+
+## Variance
+
+The reported variance is an analytic estimate of the finite-sample
+variance of the cross-fit estimator, which averages K fold estimates
+that share the unlabeled pool. It has three parts: (i) the variance of
+each fold estimate, evaluated at the tuning actually used in that fold
+with that fold's own sample moments (these are independent of the
+tuning, so estimation of the tuning is accounted for without
+approximation); (ii) the covariance between fold estimates induced by
+the shared unlabeled pool; and (iii) a second-order cross-fold term that
+arises because the tuning used in one fold is estimated on the data that
+the other fold is evaluated on. Part (iii) is the product of the
+covariances between each tuning estimate and the labeled prediction
+means of the fold it was estimated on; it is estimated in closed form
+from third central moments, is zero when outcomes and predictions are
+jointly symmetric (for example Gaussian), and is of order \\n^{-2}\\.
+The components are returned in `additional$variance_components`. The
+fixed-tuning plug-in used in version 1.0.0, which omits the variance of
+the estimated tuning and part (iii), is returned in
+`additional$variance_fixed_lambda`.
 
 ## Examples
 

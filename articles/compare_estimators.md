@@ -121,8 +121,8 @@ print_comparison(comp1, "Scenario 1: Poor Predictions")
 #>        ppi -0.0015 0.019623 0.019616         
 #>         dt -0.0020 0.019715 0.019709         
 #>        dip  0.0031 0.044152 0.044139         
-#>     dip_pp -0.0018 0.019632 0.019626         
-#>     dt_dip -0.0021 0.019799 0.019794         
+#>     dip_pp -0.0018 0.019632 0.019625         
+#>     dt_dip -0.0021 0.019805 0.019799         
 #> 
 #> Lowest variance: dim
 ```
@@ -189,8 +189,8 @@ print_comparison(comp2, "Scenario 2: Negatively Correlated Predictions")
 #>        ppi 0.0019 0.007675 0.007674         
 #>         dt 0.0021 0.007698 0.007698         
 #>        dip 0.0013 0.007707 0.007705         
-#>     dip_pp 0.0014 0.007297 0.007296         
-#>     dt_dip 0.0015 0.007296 0.007294  <-- min
+#>     dip_pp 0.0014 0.007298 0.007297         
+#>     dt_dip 0.0014 0.007296 0.007294  <-- min
 #> 
 #> Lowest variance: dt_dip
 ```
@@ -260,8 +260,8 @@ print_comparison(comp3, "Scenario 3: Heterogeneous Quality Across Arms")
 #>        ppi  0.0022 0.015073 0.015070         
 #>         dt  0.0022 0.013479 0.013477         
 #>        dip  0.0026 0.018447 0.018445         
-#>     dip_pp  0.0008 0.014143 0.014137         
-#>     dt_dip  0.0006 0.012240 0.012235  <-- min
+#>     dip_pp  0.0007 0.014150 0.014144         
+#>     dt_dip  0.0007 0.012264 0.012258  <-- min
 #> 
 #> Lowest variance: dt_dip
 ```
@@ -328,7 +328,7 @@ print_comparison(comp4, "Scenario 4: High Common-Mode Prediction Error")
 #>         dt  0.0011 0.012251 0.012246         
 #>        dip  0.0013 0.013026 0.013021         
 #>     dip_pp  0.0007 0.008676 0.008672  <-- min
-#>     dt_dip  0.0005 0.008783 0.008779         
+#>     dt_dip  0.0005 0.008784 0.008779         
 #> 
 #> Lowest variance: dip_pp
 ```
@@ -391,7 +391,7 @@ print_comparison(comp5, "Scenario 5: Common-Mode Error + Heterogeneous Quality")
 #>         dt  0.0001 0.017206 0.017197         
 #>        dip  0.0007 0.039094 0.039075         
 #>     dip_pp -0.0004 0.016770 0.016762         
-#>     dt_dip  0.0000 0.016498 0.016490  <-- min
+#>     dt_dip  0.0001 0.016497 0.016488  <-- min
 #> 
 #> Lowest variance: dt_dip
 ```
@@ -453,7 +453,7 @@ print_comparison(comp6, "Scenario 6: Near-Perfect Predictions")
 #>         dt  4e-04 0.007131 0.007127         
 #>        dip -6e-04 0.000446 0.000446  <-- min
 #>     dip_pp -4e-04 0.000454 0.000454         
-#>     dt_dip -6e-04 0.000462 0.000462         
+#>     dt_dip -5e-04 0.000468 0.000468         
 #> 
 #> Lowest variance: dip
 ```
@@ -506,7 +506,7 @@ knitr::kable(summary_df,
 |:---|:---|---:|---:|---:|---:|
 | 1: Poor predictions | dim | 0.01948 | 0.01949 | 0.01949 | 0.0 |
 | 2: Neg corr predictions | dt_dip | 0.00729 | 0.00730 | 0.02218 | 67.1 |
-| 3: Heterogeneous quality | dt_dip | 0.01223 | 0.01224 | 0.01949 | 37.2 |
+| 3: Heterogeneous quality | dt_dip | 0.01226 | 0.01226 | 0.01949 | 37.1 |
 | 4: High common-mode error | dip_pp | 0.00867 | 0.00868 | 0.01949 | 55.5 |
 | 5: Common-mode + hetero | dt_dip | 0.01649 | 0.01650 | 0.01949 | 15.3 |
 | 6: Near-perfect | dip | 0.00045 | 0.00045 | 0.04170 | 98.9 |

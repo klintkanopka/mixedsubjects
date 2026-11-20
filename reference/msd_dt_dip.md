@@ -66,7 +66,8 @@ An msd_result object containing:
 
 - variance:
 
-  Estimated variance (delta-method)
+  Estimated variance of the cross-fit estimator (see the Variance
+  section)
 
 - se:
 
@@ -118,6 +119,38 @@ D-T DiP combines the benefits of:
 - DiP: exploiting positive correlation between S^(1) and S^(0)
 
 - D-T: arm-specific tuning for heterogeneous prediction quality
+
+## Variance
+
+The reported variance is an analytic estimate of the finite-sample
+variance of the cross-fit estimator, which averages K fold estimates
+that share the unlabeled pool. It has three parts: (i) the variance of
+each fold estimate, evaluated at the tuning actually used in that fold
+with that fold's own sample moments (these are independent of the
+tuning, so estimation of the tuning is accounted for without
+approximation); (ii) the covariance between fold estimates induced by
+the shared unlabeled pool; and (iii) a second-order cross-fold term that
+arises because the tuning used in one fold is estimated on the data that
+the other fold is evaluated on. Part (iii) is the product of the
+covariances between each tuning estimate and the labeled prediction
+means of the fold it was estimated on; it is estimated in closed form
+from third central moments, is zero when outcomes and predictions are
+jointly symmetric (for example Gaussian), and is of order \\n^{-2}\\.
+The components are returned in `additional$variance_components`. The
+fixed-tuning plug-in used in version 1.0.0, which omits the variance of
+the estimated tuning and part (iii), is returned in
+`additional$variance_fixed_lambda`.
+
+## Tuning
+
+The tuning parameters used in each fold are estimated from the other
+folds' labeled data only. The unlabeled pool enters the tuning rule only
+through its size. In version 1.0.0 the variances of \\S^{(1)}\\ and
+\\S^{(0)}\\ and their covariance in the terms weighted by \\1/m\\ were
+estimated from the unlabeled pool; they are now estimated from the
+labeled tuning units, so that the tunings are independent of the data
+they are applied to and the cross-fit estimator is unbiased in finite
+samples.
 
 ## Examples
 

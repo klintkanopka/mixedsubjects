@@ -46,15 +46,15 @@ summary(result)
 #> 
 #> Coefficients:
 #>     Estimate Std. Error z value Pr(>|z|)  
-#> ATE  -0.0704     0.1940  -0.363   0.7166  
+#> ATE  -0.0712     0.2019  -0.353   0.7242  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> 95%Confidence Interval: [-0.4507, 0.3098]
+#> 95%Confidence Interval: [-0.4669, 0.3244]
 #> 
 #> Tuning Parameters:
-#>   lambda_1 (treatment): -0.0902 
-#>   lambda_0 (control):   -0.0019 
+#>   lambda_1 (treatment): -0.0829 
+#>   lambda_0 (control):   -5e-04 
 #> 
 #> Sample Sizes:
 #>   Observed (human subjects): 100
@@ -64,7 +64,7 @@ summary(result)
 #>   Total units: 300
 #> 
 #> Interpretation:
-#>   The estimated effect is 0.0704 units, but this is not statistically significant (p = 0.717).
+#>   The estimated effect is 0.0712 units, but this is not statistically significant (p = 0.724).
 #>   Using 200 unlabeled predictions improved estimation precision.
 #> 
 ```

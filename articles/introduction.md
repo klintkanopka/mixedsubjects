@@ -174,12 +174,12 @@ cat("  95% CI: [", round(result_dim$ci_lower, 3), ", ",
 cat("D-T DiP:\n")
 #> D-T DiP:
 cat("  Estimate:", round(result_dt_dip$estimate, 3), "\n")
-#>   Estimate: 0.177
+#>   Estimate: 0.176
 cat("  SE:", round(result_dt_dip$se, 3), "\n")
-#>   SE: 0.096
+#>   SE: 0.1
 cat("  95% CI: [", round(result_dt_dip$ci_lower, 3), ", ",
     round(result_dt_dip$ci_upper, 3), "]\n")
-#>   95% CI: [ -0.012 ,  0.366 ]
+#>   95% CI: [ -0.021 ,  0.373 ]
 ```
 
 Notice that the D-T DiP estimator has a **smaller standard error** than
@@ -445,8 +445,8 @@ print(result)
 #> Estimator: PPI++ (cross-fit, K=2) 
 #> 
 #> Point Estimate:  0.3617 
-#> Standard Error:  0.1033 
-#> 95% CI:         [0.1593, 0.5642]
+#> Standard Error:  0.1036 
+#> 95% CI:         [0.1587, 0.5648]
 #> 
 #> Tuning Parameters:
 #>   lambda:        0.8222 
@@ -478,8 +478,8 @@ print(result)
 #> Estimator: D-T (Doubly-Tuned, cross-fit, K=2) 
 #> 
 #> Point Estimate:  0.3457 
-#> Standard Error:  0.1037 
-#> 95% CI:         [0.1425, 0.5489]
+#> Standard Error:  0.1062 
+#> 95% CI:         [0.1375, 0.5539]
 #> 
 #> Tuning Parameters:
 #>   lambda_1 (treatment):  0.9039 
@@ -542,12 +542,12 @@ print(result)
 #> =================================
 #> Estimator: DiP++ (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.1891 
-#> Standard Error:  0.0965 
-#> 95% CI:         [0.0000, 0.3782]
+#> Point Estimate:  0.1894 
+#> Standard Error:  0.0975 
+#> 95% CI:         [-0.0016, 0.3805]
 #> 
 #> Tuning Parameters:
-#>   lambda:        0.8804 
+#>   lambda:        0.8796 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -571,13 +571,13 @@ print(result)
 #> =================================
 #> Estimator: D-T DiP (cross-fit, K=2) 
 #> 
-#> Point Estimate:  0.1699 
-#> Standard Error:  0.0965 
-#> 95% CI:         [-0.0192, 0.3589]
+#> Point Estimate:  0.1658 
+#> Standard Error:  0.0982 
+#> 95% CI:         [-0.0267, 0.3582]
 #> 
 #> Tuning Parameters:
-#>   lambda_1 (treatment):  0.9518 
-#>   lambda_0 (control):    0.8377 
+#>   lambda_1 (treatment):  0.9697 
+#>   lambda_0 (control):    0.8327 
 #> 
 #> Sample Sizes:
 #>   Observed:   n_1=100, n_0=100
@@ -601,19 +601,19 @@ print(all_results)
 #>                                    Estimator Estimate     SE 95% CI Lower
 #>                    Difference-in-Means (DiM)   0.4980 0.1330       0.2373
 #>                            GREG (lambda = 1)   0.3307 0.1073       0.1203
-#>                       PPI++ (cross-fit, K=2)   0.3664 0.1032       0.1643
-#>           D-T (Doubly-Tuned, cross-fit, K=2)   0.3585 0.1034       0.1557
+#>                       PPI++ (cross-fit, K=2)   0.3664 0.1046       0.1614
+#>           D-T (Doubly-Tuned, cross-fit, K=2)   0.3585 0.1039       0.1548
 #>  DiP (Difference-in-Predictions, lambda = 1)   0.1454 0.0976      -0.0459
-#>                       DiP++ (cross-fit, K=2)   0.1893 0.0965       0.0002
-#>                     D-T DiP (cross-fit, K=2)   0.1870 0.0964      -0.0020
+#>                       DiP++ (cross-fit, K=2)   0.1896 0.0973      -0.0010
+#>                     D-T DiP (cross-fit, K=2)   0.1848 0.0969      -0.0051
 #>  95% CI Upper
 #>        0.7586
 #>        0.5410
-#>        0.5686
-#>        0.5612
+#>        0.5715
+#>        0.5621
 #>        0.3367
-#>        0.3785
-#>        0.3760
+#>        0.3803
+#>        0.3747
 ```
 
 ## Choosing the Right Estimator
@@ -656,11 +656,39 @@ likely outperform GREG-type estimators.
 
 ## Variance Estimation
 
-### Delta-Method (Default)
+### Analytic Variance (Default)
 
-All estimators use the delta-method for variance estimation by default.
-This provides fast, analytical variance estimates based on the formulas
-derived in the accompanying paper.
+All estimators report a fast, closed-form variance estimate based on the
+formulas derived in the accompanying paper.
+
+For the cross-fit estimators (PPI++, D-T, DiP++, D-T DiP) the estimate
+has three parts: the variance of each fold estimate, evaluated at the
+tuning actually used in that fold; the covariance between fold estimates
+created by the shared unlabeled pool; and a second-order cross-fold term
+that accounts for each fold’s tuning having been estimated on the data
+the other fold is evaluated on. The last term depends on third moments
+of outcomes and predictions (it is zero for symmetric, e.g. Gaussian,
+data) and matters mainly in small labeled samples with skewed
+predictions. The pieces sum to the reported variance and are available
+for inspection:
+
+``` r
+
+result_dt_dip$additional$variance_components
+#> $fold_variances
+#> [1] 0.004334823 0.005514086
+#> 
+#> $cross_unlabeled
+#> [1] 0.0002190805
+#> 
+#> $cross_fold
+#> [1] 1.641329e-05
+```
+
+Tuning parameters are always estimated from labeled data only, on the
+folds other than the one they are applied to. The unlabeled pool enters
+a tuning rule only through its size. This is what makes the cross-fit
+estimators unbiased in finite samples.
 
 ### Bootstrap (Optional)
 
@@ -676,14 +704,14 @@ boot_result <- bootstrap_variance(
   seed = 42
 )
 
-cat("Delta-method SE:", round(result_dt_dip$se, 4), "\n")
-#> Delta-method SE: 0.0965
+cat("Analytic SE:", round(result_dt_dip$se, 4), "\n")
+#> Analytic SE: 0.1004
 cat("Bootstrap SE:", round(boot_result$se, 4), "\n")
-#> Bootstrap SE: 0.0975
+#> Bootstrap SE: 0.0974
 ```
 
 The bootstrap is computationally more expensive but provides a useful
-check on the delta-method variance.
+check on the analytic variance.
 
 ## Optimal Experimental Design
 
@@ -948,13 +976,13 @@ If you use this package in your research, please cite:
 ``` r
 
 sessionInfo()
-#> R version 4.6.1 (2026-06-24)
+#> R version 4.6.2 (2026-10-29)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.4 LTS
+#> Running under: Ubuntu 26.04.1 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
-#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so;  LAPACK version 3.12.0
 #> 
 #> locale:
 #>  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
@@ -969,14 +997,14 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] mixedsubjects_1.0.0
+#> [1] mixedsubjects_1.1.0
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] digest_0.6.39     desc_1.4.3        R6_2.6.1          fastmap_1.2.0    
-#>  [5] xfun_0.59         cachem_1.1.0      knitr_1.51        htmltools_0.5.9  
-#>  [9] rmarkdown_2.31    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      
-#> [13] pkgdown_2.2.0     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.2
-#> [17] compiler_4.6.1    tools_4.6.1       ragg_1.5.2        bslib_0.11.0     
-#> [21] evaluate_1.0.5    yaml_2.3.12       otel_0.2.0        jsonlite_2.0.0   
-#> [25] rlang_1.2.0       fs_2.1.0
+#>  [5] xfun_0.62         cachem_1.1.0      knitr_1.52        htmltools_0.5.9  
+#>  [9] rmarkdown_2.32    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      
+#> [13] pkgdown_2.2.1     textshaping_1.0.5 jquerylib_0.1.4   systemfonts_1.3.3
+#> [17] compiler_4.6.2    tools_4.6.2       ragg_1.5.2        bslib_0.12.0     
+#> [21] evaluate_1.0.5    yaml_2.3.12       otel_0.3.0        jsonlite_2.0.0   
+#> [25] rlang_1.3.0       fs_2.1.0
 ```

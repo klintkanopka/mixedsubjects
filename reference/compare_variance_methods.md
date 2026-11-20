@@ -55,6 +55,6 @@ msd <- msd_data(observed = obs_df, unobserved = unobs_df)
 comparison <- compare_variance_methods(msd, "dt_dip", n_bootstrap = 100, seed = 1)
 print(comparison)
 #>                Method   Estimate   Variance        SE   CI_Lower  CI_Upper
-#> ci_lower Delta-method 0.08456805 0.04819244 0.2195278 -0.3456985 0.5148346
-#>             Bootstrap 0.10692238 0.05166501 0.2272994 -0.4237820 0.4832869
+#> ci_lower Delta-method 0.08423398 0.04932197 0.2220855 -0.3510456 0.5195136
+#>             Bootstrap 0.10638804 0.05242130 0.2289570 -0.4321612 0.4863055
 ```
