@@ -6,9 +6,9 @@ Authors@R: c(
     person("Klint", "Kanopka", email = "klint.kanopka@nyu.edu", role = c("aut", "cre")),
     person("Yuan", "Huang", email = "yh2741@nyu.edu", role = "ctb")
   )
-Description: Implements seven estimators for average treatment effect (ATE)
+Description: Implements eight estimators for average treatment effect (ATE)
     estimation in mixed-subjects designs (MSDs), where human subjects data is
-    augmented with predictions from large language models (LLMs)., Includes
+    augmented with predictions from large language models (LLMs). Includes
     Difference-in-Means, GREG, Prediction Powered Inference (PPI), Power Tuned
     PPI (PPI++), Doubly-Tuned PPI (D-T PPI++), Difference-in-Predictions
     (DiP), DiP++, and D-T DiP estimators. Provides point estimates, variance
