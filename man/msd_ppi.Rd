@@ -34,7 +34,8 @@ an msd_data object, a combined dataframe, or NULL (if using observed/unobserved)
 \value{
 An msd_result object containing:
 \item{estimate}{Point estimate of the ATE}
-\item{variance}{Estimated variance (delta-method)}
+\item{variance}{Estimated variance of the cross-fit estimator (see the
+Variance section)}
 \item{se}{Standard error}
 \item{ci_lower, ci_upper}{Confidence interval bounds}
 \item{method}{Name of the estimation method}
@@ -67,6 +68,27 @@ Lambda is chosen to minimize the combined variance across arms.
 PPI++ uses a single lambda across arms, unlike D-T which uses arm-specific
 tuning parameters. For arm-specific tuning, use \code{\link{msd_dt}}.
 }
+\section{Variance}{
+
+The reported variance is an analytic estimate of the finite-sample variance
+of the cross-fit estimator, which averages K fold estimates that share the
+unlabeled pool. It has three parts: (i) the variance of each fold estimate,
+evaluated at the tuning actually used in that fold with that fold's own
+sample moments (these are independent of the tuning, so estimation of the
+tuning is accounted for without approximation); (ii) the covariance between
+fold estimates induced by the shared unlabeled pool; and (iii) a
+second-order cross-fold term that arises because the tuning used in one
+fold is estimated on the data that the other fold is evaluated on. Part
+(iii) is the product of the covariances between each tuning estimate and the
+labeled prediction means of the fold it was estimated on; it is estimated in
+closed form from third central moments, is zero when outcomes and
+predictions are jointly symmetric (for example Gaussian), and is of order
+\eqn{n^{-2}}. The components are returned in
+\code{additional$variance_components}. The fixed-tuning plug-in used in
+version 1.0.0, which omits the variance of the estimated tuning and part
+(iii), is returned in \code{additional$variance_fixed_lambda}.
+}
+
 \examples{
 # Create sample data
 set.seed(123)

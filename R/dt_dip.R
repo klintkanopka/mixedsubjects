@@ -20,7 +20,8 @@
 #'
 #' @return An msd_result object containing:
 #'   \item{estimate}{Point estimate of the ATE}
-#'   \item{variance}{Estimated variance (delta-method)}
+#'   \item{variance}{Estimated variance of the cross-fit estimator (see the
+#'     Variance section)}
 #'   \item{se}{Standard error}
 #'   \item{ci_lower, ci_upper}{Confidence interval bounds}
 #'   \item{method}{Name of the estimation method}
@@ -46,6 +47,34 @@
 #'   \item Compute the fold-k estimate using estimated lambdas
 #'   \item Average across folds with equal weights
 #' }
+#'
+#' @section Variance:
+#' The reported variance is an analytic estimate of the finite-sample variance
+#' of the cross-fit estimator, which averages K fold estimates that share the
+#' unlabeled pool. It has three parts: (i) the variance of each fold estimate,
+#' evaluated at the tuning actually used in that fold with that fold's own
+#' sample moments (these are independent of the tuning, so estimation of the
+#' tuning is accounted for without approximation); (ii) the covariance between
+#' fold estimates induced by the shared unlabeled pool; and (iii) a
+#' second-order cross-fold term that arises because the tuning used in one
+#' fold is estimated on the data that the other fold is evaluated on. Part
+#' (iii) is the product of the covariances between each tuning estimate and the
+#' labeled prediction means of the fold it was estimated on; it is estimated in
+#' closed form from third central moments, is zero when outcomes and
+#' predictions are jointly symmetric (for example Gaussian), and is of order
+#' \eqn{n^{-2}}. The components are returned in
+#' \code{additional$variance_components}. The fixed-tuning plug-in used in
+#' version 1.0.0, which omits the variance of the estimated tuning and part
+#' (iii), is returned in \code{additional$variance_fixed_lambda}.
+#'
+#' @section Tuning:
+#' The tuning parameters used in each fold are estimated from the other folds'
+#' labeled data only. The unlabeled pool enters the tuning rule only through
+#' its size. In version 1.0.0 the variances of \eqn{S^{(1)}} and
+#' \eqn{S^{(0)}} and their covariance in the terms weighted by \eqn{1/m} were
+#' estimated from the unlabeled pool; they are now estimated from the labeled
+#' tuning units, so that the tunings are independent of the data they are
+#' applied to and the cross-fit estimator is unbiased in finite samples.
 #'
 #' @note
 #' D-T DiP requires BOTH S0 and S1 predictions for ALL units.
@@ -123,8 +152,7 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
     control_not_k <- fold_info$control_idx[fold_info$control_folds != k]
 
     # Estimate arm-specific lambdas on opposite folds
-    lambdas_k <- estimate_lambda_dt_dip(obs, treated_not_k, control_not_k,
-                                         unobs, m)
+    lambdas_k <- estimate_lambda_dt_dip(obs, treated_not_k, control_not_k, m)
 
     # Compute estimate on fold k using lambdas from opposite folds
     est_k <- compute_dt_dip_estimate(obs, unobs, treated_in_k, control_in_k,
@@ -140,8 +168,10 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
   lambda1 <- mean(fold_lambda1)
   lambda0 <- mean(fold_lambda0)
 
-  # Compute variance using delta method
-  variance <- compute_dt_dip_variance(msd, lambda1, lambda0, n_folds)
+  # Cross-fit variance (SI section S2.6)
+  vc <- compute_dt_dip_crossfit_variance(msd, fold_info, fold_lambda1,
+                                         fold_lambda0)
+  variance <- vc$variance
 
   # Standard error
   se <- sqrt(variance)
@@ -166,7 +196,9 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
       fold_lambda1 = fold_lambda1,
       fold_lambda0 = fold_lambda0,
       fold_estimates = fold_estimates,
-      cov_S1_S0 = cov(unobs$S1, unobs$S0)
+      cov_S1_S0 = cov(unobs$S1, unobs$S0),
+      variance_components = vc[c("fold_variances", "cross_unlabeled", "cross_fold")],
+      variance_fixed_lambda = compute_dt_dip_variance(msd, lambda1, lambda0, n_folds)
     )
   )
 }
@@ -194,8 +226,11 @@ msd_dt_dip <- function(formula_or_data, data = NULL, observed = NULL,
 #' pilot moments), pass the same value for the observed and unobserved variance,
 #' which reduces A1 to Var(S1)*(1/m + 1/n1).
 #'
-#' @param var_S1_unobs,var_S0_unobs Variances of S1, S0 in the unobserved pool.
-#' @param cov_S1_S0_unobs Covariance of S1 and S0 in the unobserved pool.
+#' @param var_S1_unobs,var_S0_unobs Variances of S1, S0 entering the terms
+#'   weighted by 1/m (the unobserved-pool terms). The estimator passes labeled
+#'   estimates here so that the tuning does not depend on the unobserved pool.
+#' @param cov_S1_S0_unobs Covariance of S1 and S0 entering the term weighted by
+#'   1/m. The estimator passes the labeled estimate.
 #' @param var_S1_obs,var_S0_obs Variances of S1, S0 in the observed arms.
 #' @param cov_YS_1,cov_YS_0 Covariances of (Y, S) within the treatment and
 #'   control arms.
@@ -228,8 +263,19 @@ solve_dt_dip_lambda <- function(var_S1_unobs, var_S0_unobs, cov_S1_S0_unobs,
 }
 
 #' Estimate arm-specific lambdas for D-T DiP
+#'
+#' Uses labeled data only. Var(S1) and Var(S0) are estimated from the tuning
+#' units of the corresponding arm, and Cov(S1, S0), which enters with weight
+#' 1/m, from the tuning units of both arms (every labeled unit carries both
+#' predictions). The unlabeled pool enters only through its size m, so the
+#' tunings are independent of the unlabeled pool and of the fold they are
+#' applied to.
+#'
+#' @param obs Observed data frame
+#' @param treated_idx,control_idx Row indices of the labeled tuning units
+#' @param m Size of the unlabeled pool
 #' @noRd
-estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
+estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, m) {
   # Get data for treatment arm
   Y1 <- obs$Y[treated_idx]
   S1_obs_1 <- obs$S1[treated_idx]
@@ -240,14 +286,18 @@ estimate_lambda_dt_dip <- function(obs, treated_idx, control_idx, unobs, m) {
   S0_obs_0 <- obs$S0[control_idx]
   n0 <- length(Y0)
 
+  var_S1 <- var(S1_obs_1)
+  var_S0 <- var(S0_obs_0)
+  cov_S <- labeled_pred_cov(obs, c(treated_idx, control_idx))
+
   # The optimal arm-specific lambdas jointly minimize the D-T DiP variance,
   # accounting for the coupling through the shared unobserved pool.
   solve_dt_dip_lambda(
-    var_S1_unobs = var(unobs$S1),
-    var_S0_unobs = var(unobs$S0),
-    cov_S1_S0_unobs = cov(unobs$S1, unobs$S0),
-    var_S1_obs = var(S1_obs_1),
-    var_S0_obs = var(S0_obs_0),
+    var_S1_unobs = var_S1,
+    var_S0_unobs = var_S0,
+    cov_S1_S0_unobs = cov_S[1, 2],
+    var_S1_obs = var_S1,
+    var_S0_obs = var_S0,
     cov_YS_1 = cov(Y1, S1_obs_1),
     cov_YS_0 = cov(Y0, S0_obs_0),
     n1 = n1, n0 = n0, m = m
@@ -277,6 +327,62 @@ compute_dt_dip_estimate <- function(obs, unobs, treated_idx, control_idx,
 
   return(estimate)
 }
+
+#' Cross-fit variance for D-T DiP
+#'
+#' The tunings solve M lambda = D with M = [A1, -B; -B, A0],
+#' A_d = var_d * (1 / m + 1 / N_d), B = cov(S1, S0) / m and D_d = cov_d / N_d,
+#' all moments from labeled data. Linearizing, d lambda = M^{-1} e with e_d
+#' the fluctuation of (cov_d - lambda_d var_d) / N_d up to terms weighted by
+#' 1/m, so Cov(lambda_d, Sbar_e) ~ Minv[d, e] * g_e with
+#' g_e = (kappa_YSS,e - lambda_e * kappa_SSS,e) / N_e^2, up to terms of
+#' relative order n / m. Sigma_U, the covariance of the unlabeled prediction
+#' means, is estimated from the unlabeled pool.
+#' @noRd
+compute_dt_dip_crossfit_variance <- function(data, fold_info, fold_lambda1,
+                                             fold_lambda0) {
+  obs <- data$observed
+  unobs <- data$unobserved
+  K <- fold_info$n_folds
+  m <- nrow(unobs)
+
+  Y1 <- obs$Y[obs$D == 1]; S1 <- obs$S1[obs$D == 1]
+  Y0 <- obs$Y[obs$D == 0]; S0 <- obs$S0[obs$D == 0]
+
+  cov_U <- if (m > 1) stats::cov(cbind(unobs$S1, unobs$S0)) else matrix(0, 2, 2)
+  Sigma_U <- cov_U / m
+
+  k1 <- arm_third_moments(Y1, S1)
+  k0 <- arm_third_moments(Y0, S0)
+  v <- c(safe_var(S1), safe_var(S0))
+  cv <- c(stats::cov(Y1, S1), stats::cov(Y0, S0))
+  kYSS <- c(k1$kappa_YSS, k0$kappa_YSS)
+  kSSS <- c(k1$kappa_SSS, k0$kappa_SSS)
+  # Labeled estimate of Cov(S1, S0), matching the tuning rule
+  cov_lab <- labeled_pred_cov(obs, seq_len(nrow(obs)))
+
+  G <- zero_G(K)
+  for (k in seq_len(K)) {
+    N <- tuning_sizes(fold_info, k)
+    if (!all(N > 0)) next
+    A <- v * (1 / m + 1 / N)
+    B <- cov_lab[1, 2] / m
+    M <- matrix(c(A[1], -B, -B, A[2]), 2, 2)
+    det_M <- A[1] * A[2] - B^2
+    if (!is.finite(det_M) || abs(det_M) < .Machine$double.eps^0.5) {
+      # Same decoupled fallback as solve_dt_dip_lambda()
+      Minv <- diag(ifelse(A > 0, 1 / A, 0))
+    } else {
+      Minv <- solve(M)
+    }
+    lam <- drop(Minv %*% (cv / N))
+    g <- (kYSS - lam * kSSS) / N^2
+    G[[k]] <- Minv %*% diag(g)
+  }
+
+  crossfit_variance(obs, fold_info, fold_lambda1, fold_lambda0, Sigma_U, G)
+}
+
 
 #' Compute D-T DiP variance using delta method
 #'

@@ -19,7 +19,8 @@
 #'
 #' @return An msd_result object containing:
 #'   \item{estimate}{Point estimate of the ATE}
-#'   \item{variance}{Estimated variance (delta-method)}
+#'   \item{variance}{Estimated variance of the cross-fit estimator (see the
+#'     Variance section)}
 #'   \item{se}{Standard error}
 #'   \item{ci_lower, ci_upper}{Confidence interval bounds}
 #'   \item{method}{Name of the estimation method}
@@ -39,6 +40,25 @@
 #' }
 #'
 #' Lambda is chosen to minimize the combined variance across arms.
+#'
+#' @section Variance:
+#' The reported variance is an analytic estimate of the finite-sample variance
+#' of the cross-fit estimator, which averages K fold estimates that share the
+#' unlabeled pool. It has three parts: (i) the variance of each fold estimate,
+#' evaluated at the tuning actually used in that fold with that fold's own
+#' sample moments (these are independent of the tuning, so estimation of the
+#' tuning is accounted for without approximation); (ii) the covariance between
+#' fold estimates induced by the shared unlabeled pool; and (iii) a
+#' second-order cross-fold term that arises because the tuning used in one
+#' fold is estimated on the data that the other fold is evaluated on. Part
+#' (iii) is the product of the covariances between each tuning estimate and the
+#' labeled prediction means of the fold it was estimated on; it is estimated in
+#' closed form from third central moments, is zero when outcomes and
+#' predictions are jointly symmetric (for example Gaussian), and is of order
+#' \eqn{n^{-2}}. The components are returned in
+#' \code{additional$variance_components}. The fixed-tuning plug-in used in
+#' version 1.0.0, which omits the variance of the estimated tuning and part
+#' (iii), is returned in \code{additional$variance_fixed_lambda}.
 #'
 #' @note
 #' PPI++ uses a single lambda across arms, unlike D-T which uses arm-specific
@@ -131,8 +151,11 @@ msd_ppi <- function(formula_or_data, data = NULL, observed = NULL,
   estimate <- mean(fold_estimates)
   lambda <- mean(fold_lambdas)
 
-  # Compute variance using delta method
-  variance <- compute_ppi_variance(msd, lambda, n_folds)
+  # Cross-fit variance: fold-wise fixed-lambda variances evaluated at the
+  # realized tunings, the shared-unlabeled covariance, and the cross-fold
+  # tuning term (SI section S2.2)
+  vc <- compute_ppi_crossfit_variance(msd, fold_info, fold_lambdas)
+  variance <- vc$variance
 
   # Standard error
   se <- sqrt(variance)
@@ -157,7 +180,9 @@ msd_ppi <- function(formula_or_data, data = NULL, observed = NULL,
       m1 = m1,
       m0 = m0,
       fold_lambdas = fold_lambdas,
-      fold_estimates = fold_estimates
+      fold_estimates = fold_estimates,
+      variance_components = vc[c("fold_variances", "cross_unlabeled", "cross_fold")],
+      variance_fixed_lambda = compute_ppi_variance(msd, lambda, n_folds)
     )
   )
 }
@@ -223,7 +248,56 @@ compute_ppi_estimate <- function(obs, unobs, treated_idx, control_idx, lambda) {
   return(mu_1 - mu_0)
 }
 
-#' Compute PPI++ variance using delta method
+#' Cross-fit variance for PPI++
+#'
+#' Sigma_U is diagonal (arm-specific unlabeled pools). The shared tuning
+#' computed on a tuning sample of sizes (N1, N0) is lambda = c / b with
+#' c = sum_d cov_d / N_d and b = sum_d var_d * a_d, a_d = 1/m_d + 1/N_d, so
+#' Cov(lambda, Sbar_e) ~ g_e / b with
+#' g_e = kappa_YSS,e / N_e^2 - lambda * a_e * kappa_SSS,e / N_e.
+#' @noRd
+compute_ppi_crossfit_variance <- function(data, fold_info, fold_lambdas) {
+  obs <- data$observed
+  unobs <- data$unobserved
+  K <- fold_info$n_folds
+
+  Y1 <- obs$Y[obs$D == 1]; S1 <- obs$S1[obs$D == 1]
+  Y0 <- obs$Y[obs$D == 0]; S0 <- obs$S0[obs$D == 0]
+  S1_unobs <- unobs$S1[unobs$D == 1]
+  S0_unobs <- unobs$S0[unobs$D == 0]
+  m1 <- length(S1_unobs)
+  m0 <- length(S0_unobs)
+
+  Sigma_U <- diag(c(safe_var(S1_unobs, safe_var(S1)) / m1,
+                    safe_var(S0_unobs, safe_var(S0)) / m0))
+
+  k1 <- arm_third_moments(Y1, S1)
+  k0 <- arm_third_moments(Y0, S0)
+  v <- c(safe_var(S1), safe_var(S0))
+  cv <- c(stats::cov(Y1, S1), stats::cov(Y0, S0))
+  kYSS <- c(k1$kappa_YSS, k0$kappa_YSS)
+  kSSS <- c(k1$kappa_SSS, k0$kappa_SSS)
+
+  G <- zero_G(K)
+  for (k in seq_len(K)) {
+    N <- tuning_sizes(fold_info, k)
+    a <- 1 / c(m1, m0) + 1 / N
+    b <- sum(v * a)
+    if (all(N > 0) && is.finite(b) && b > 0) {
+      lam <- sum(cv / N) / b
+      g <- kYSS / N^2 - lam * a * kSSS / N
+      G[[k]] <- rbind(g / b, g / b)
+    }
+  }
+
+  crossfit_variance(obs, fold_info, fold_lambdas, fold_lambdas, Sigma_U, G)
+}
+
+#' Fixed-lambda (pooled) PPI++ variance
+#'
+#' Retained for reference and reported in `additional$variance_fixed_lambda`.
+#' It treats the tuning as a known constant, so it omits both the variance of
+#' the estimated tuning and the cross-fold tuning term.
 #'
 #' The cross-fit estimator is theta = (1/K) * sum_k theta_k, where each
 #' theta_k = L_k + U. L_k is the labeled component (independent across folds,

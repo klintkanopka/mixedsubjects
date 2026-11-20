@@ -34,7 +34,8 @@ an msd_data object, a combined dataframe, or NULL (if using observed/unobserved)
 \value{
 An msd_result object containing:
 \item{estimate}{Point estimate of the ATE}
-\item{variance}{Estimated variance (delta-method)}
+\item{variance}{Estimated variance of the cross-fit estimator (see the
+Variance section)}
 \item{se}{Standard error}
 \item{ci_lower, ci_upper}{Confidence interval bounds}
 \item{method}{Name of the estimation method}
@@ -60,6 +61,37 @@ The DiP++ estimator is:
 DiP++ requires BOTH S0 and S1 predictions for ALL units.
 For arm-specific tuning, use \code{\link{msd_dt_dip}}.
 }
+\section{Variance}{
+
+The reported variance is an analytic estimate of the finite-sample variance
+of the cross-fit estimator, which averages K fold estimates that share the
+unlabeled pool. It has three parts: (i) the variance of each fold estimate,
+evaluated at the tuning actually used in that fold with that fold's own
+sample moments (these are independent of the tuning, so estimation of the
+tuning is accounted for without approximation); (ii) the covariance between
+fold estimates induced by the shared unlabeled pool; and (iii) a
+second-order cross-fold term that arises because the tuning used in one
+fold is estimated on the data that the other fold is evaluated on. Part
+(iii) is the product of the covariances between each tuning estimate and the
+labeled prediction means of the fold it was estimated on; it is estimated in
+closed form from third central moments, is zero when outcomes and
+predictions are jointly symmetric (for example Gaussian), and is of order
+\eqn{n^{-2}}. The components are returned in
+\code{additional$variance_components}. The fixed-tuning plug-in used in
+version 1.0.0, which omits the variance of the estimated tuning and part
+(iii), is returned in \code{additional$variance_fixed_lambda}.
+}
+
+\section{Tuning}{
+
+The tuning parameter used in each fold is estimated from the other folds'
+labeled data only. The unlabeled pool enters the tuning rule only through
+its size. In version 1.0.0 the variance of \eqn{S^{(1)} - S^{(0)}} in the
+tuning rule was estimated from the unlabeled pool; it is now estimated from
+the labeled tuning units, so that the tuning is independent of the data it
+is applied to and the cross-fit estimator is unbiased in finite samples.
+}
+
 \examples{
 # Using msd_data object
 set.seed(123)
