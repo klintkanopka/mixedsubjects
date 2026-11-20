@@ -1,8 +1,8 @@
 # mixedsubjects: Causal Inference in Experiments with Mixed-Subjects Designs
 
-Implements seven estimators for average treatment effect (ATE)
+Implements eight estimators for average treatment effect (ATE)
 estimation in mixed-subjects designs (MSDs), where human subjects data
-is augmented with predictions from large language models (LLMs).,
+is augmented with predictions from large language models (LLMs).
 Includes Difference-in-Means, GREG, Prediction Powered Inference (PPI),
 Power Tuned PPI (PPI++), Doubly-Tuned PPI (D-T PPI++),
 Difference-in-Predictions (DiP), DiP++, and D-T DiP estimators. Provides
