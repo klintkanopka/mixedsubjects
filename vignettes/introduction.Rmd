@@ -425,9 +425,17 @@ A positive correlation (which is common) means DiP estimators will likely outper
 
 ## Variance Estimation
 
-### Delta-Method (Default)
+### Analytic Variance (Default)
 
-All estimators use the delta-method for variance estimation by default. This provides fast, analytical variance estimates based on the formulas derived in the accompanying paper.
+All estimators report a fast, closed-form variance estimate based on the formulas derived in the accompanying paper.
+
+For the cross-fit estimators (PPI++, D-T, DiP++, D-T DiP) the estimate has three parts: the variance of each fold estimate, evaluated at the tuning actually used in that fold; the covariance between fold estimates created by the shared unlabeled pool; and a second-order cross-fold term that accounts for each fold's tuning having been estimated on the data the other fold is evaluated on. The last term depends on third moments of outcomes and predictions (it is zero for symmetric, e.g. Gaussian, data) and matters mainly in small labeled samples with skewed predictions. The pieces sum to the reported variance and are available for inspection:
+
+```{r variance-components}
+result_dt_dip$additional$variance_components
+```
+
+Tuning parameters are always estimated from labeled data only, on the folds other than the one they are applied to. The unlabeled pool enters a tuning rule only through its size. This is what makes the cross-fit estimators unbiased in finite samples.
 
 ### Bootstrap (Optional)
 
@@ -442,11 +450,11 @@ boot_result <- bootstrap_variance(
   seed = 42
 )
 
-cat("Delta-method SE:", round(result_dt_dip$se, 4), "\n")
+cat("Analytic SE:", round(result_dt_dip$se, 4), "\n")
 cat("Bootstrap SE:", round(boot_result$se, 4), "\n")
 ```
 
-The bootstrap is computationally more expensive but provides a useful check on the delta-method variance.
+The bootstrap is computationally more expensive but provides a useful check on the analytic variance.
 
 ## Optimal Experimental Design
 

@@ -19,7 +19,8 @@
 #'
 #' @return An msd_result object containing:
 #'   \item{estimate}{Point estimate of the ATE}
-#'   \item{variance}{Estimated variance (delta-method)}
+#'   \item{variance}{Estimated variance of the cross-fit estimator (see the
+#'     Variance section)}
 #'   \item{se}{Standard error}
 #'   \item{ci_lower, ci_upper}{Confidence interval bounds}
 #'   \item{method}{Name of the estimation method}
@@ -33,7 +34,33 @@
 #' Each lambda_d is chosen to minimize the variance in arm d:
 #' \deqn{\lambda_d^* = \frac{Cov(Y(d), S^{(d)}) / n_d}{Var(S^{(d)})(1/m_d + 1/n_d)}}
 #'
+#' With cross-fitting, the arm mean is computed on each fold using a tuning
+#' estimated on the other folds' labeled data, and the fold-specific arm means
+#' are combined with weights equal to each fold's share of the arm's labeled
+#' units, \eqn{\pi_d^{(k)} = n_d^{(k)} / n_d}. The weights are returned in
+#' \code{additional$fold_weights}. They equal \eqn{1/K} whenever an arm's
+#' labeled sample size is divisible by the number of folds.
+#'
 #' The tuning parameters are estimated via cross-fitting to avoid bias.
+#'
+#' @section Variance:
+#' The reported variance is an analytic estimate of the finite-sample variance
+#' of the cross-fit estimator, which averages K fold estimates that share the
+#' unlabeled pool. It has three parts: (i) the variance of each fold estimate,
+#' evaluated at the tuning actually used in that fold with that fold's own
+#' sample moments (these are independent of the tuning, so estimation of the
+#' tuning is accounted for without approximation); (ii) the covariance between
+#' fold estimates induced by the shared unlabeled pool; and (iii) a
+#' second-order cross-fold term that arises because the tuning used in one
+#' fold is estimated on the data that the other fold is evaluated on. Part
+#' (iii) is the product of the covariances between each tuning estimate and the
+#' labeled prediction means of the fold it was estimated on; it is estimated in
+#' closed form from third central moments, is zero when outcomes and
+#' predictions are jointly symmetric (for example Gaussian), and is of order
+#' \eqn{n^{-2}}. The components are returned in
+#' \code{additional$variance_components}. The fixed-tuning plug-in used in
+#' version 1.0.0, which omits the variance of the estimated tuning and part
+#' (iii), is returned in \code{additional$variance_fixed_lambda}.
 #'
 #' @note
 #' D-T differs from PPI++ by using separate tuning parameters for each arm,
@@ -99,10 +126,13 @@ msd_dt <- function(formula_or_data, data = NULL, observed = NULL,
   # Create fold assignments for each arm
   fold_info <- split_by_arm_fold(msd, n_folds, seed)
 
-  # Storage for fold estimates and lambdas
-  fold_estimates <- numeric(n_folds)
+  # Storage for fold-by-arm estimates, lambdas and fold weights
+  fold_mu1 <- numeric(n_folds)
+  fold_mu0 <- numeric(n_folds)
   fold_lambda1 <- numeric(n_folds)
   fold_lambda0 <- numeric(n_folds)
+  w1 <- numeric(n_folds)
+  w0 <- numeric(n_folds)
 
   # Cross-fitting loop
   for (k in 1:n_folds) {
@@ -116,22 +146,30 @@ msd_dt <- function(formula_or_data, data = NULL, observed = NULL,
     lambdas_k <- estimate_lambda_dt(obs, treated_not_k, control_not_k,
                                      unobs, m1, m0)
 
-    # Compute estimate on fold k using lambdas from opposite folds
-    est_k <- compute_dt_estimate(obs, unobs, treated_in_k, control_in_k,
-                                  lambdas_k$lambda1, lambdas_k$lambda0)
+    # Arm means on fold k using lambdas from opposite folds
+    mu_k <- compute_dt_arm_means(obs, unobs, treated_in_k, control_in_k,
+                                 lambdas_k$lambda1, lambdas_k$lambda0)
 
-    fold_estimates[k] <- est_k
+    fold_mu1[k] <- mu_k$mu1
+    fold_mu0[k] <- mu_k$mu0
     fold_lambda1[k] <- lambdas_k$lambda1
     fold_lambda0[k] <- lambdas_k$lambda0
+
+    # Each fold is weighted by its share of the arm's labeled units
+    w1[k] <- length(treated_in_k) / n1
+    w0[k] <- length(control_in_k) / n0
   }
 
-  # Average across folds (equal weights)
-  estimate <- mean(fold_estimates)
-  lambda1 <- mean(fold_lambda1)
-  lambda0 <- mean(fold_lambda0)
+  # Combine folds within arm: tau = sum_k (w_1k mu_1k - w_0k mu_0k)
+  fold_estimates <- fold_mu1 - fold_mu0
+  estimate <- sum(w1 * fold_mu1) - sum(w0 * fold_mu0)
+  lambda1 <- sum(w1 * fold_lambda1)
+  lambda0 <- sum(w0 * fold_lambda0)
 
-  # Compute variance using delta method
-  variance <- compute_dt_variance(msd, lambda1, lambda0, n_folds)
+  # Cross-fit variance (SI section S2.3)
+  vc <- compute_dt_crossfit_variance(msd, fold_info, fold_lambda1, fold_lambda0,
+                                     w1, w0)
+  variance <- vc$variance
 
   # Standard error
   se <- sqrt(variance)
@@ -157,7 +195,10 @@ msd_dt <- function(formula_or_data, data = NULL, observed = NULL,
       m0 = m0,
       fold_lambda1 = fold_lambda1,
       fold_lambda0 = fold_lambda0,
-      fold_estimates = fold_estimates
+      fold_estimates = fold_estimates,
+      fold_weights = list(treated = w1, control = w0),
+      variance_components = vc[c("fold_variances", "cross_unlabeled", "cross_fold")],
+      variance_fixed_lambda = compute_dt_variance(msd, lambda1, lambda0, n_folds)
     )
   )
 }
@@ -205,9 +246,10 @@ estimate_lambda_dt <- function(obs, treated_idx, control_idx, unobs, m1, m0) {
   list(lambda1 = lambda1, lambda0 = lambda0)
 }
 
-#' Compute D-T estimate for a fold
+#' Compute the D-T arm means for a fold
+#' @return list(mu1, mu0)
 #' @noRd
-compute_dt_estimate <- function(obs, unobs, treated_idx, control_idx,
+compute_dt_arm_means <- function(obs, unobs, treated_idx, control_idx,
                                  lambda1, lambda0) {
   # Get fold data
   Y1 <- obs$Y[treated_idx]
@@ -220,11 +262,57 @@ compute_dt_estimate <- function(obs, unobs, treated_idx, control_idx,
   S0_unobs_mean <- mean(unobs$S0[unobs$D == 0])
 
   # D-T estimate for each arm (with arm-specific lambda)
-  mu_1 <- mean(Y1) + lambda1 * (S1_unobs_mean - mean(S1_obs))
-  mu_0 <- mean(Y0) + lambda0 * (S0_unobs_mean - mean(S0_obs))
-
-  return(mu_1 - mu_0)
+  list(
+    mu1 = mean(Y1) + lambda1 * (S1_unobs_mean - mean(S1_obs)),
+    mu0 = mean(Y0) + lambda0 * (S0_unobs_mean - mean(S0_obs))
+  )
 }
+
+#' Cross-fit variance for D-T
+#'
+#' Arm-specific tunings lambda_d = (cov_d / N_d) / (var_d * a_d) depend on arm
+#' d only, so Cov(lambda_d, Sbar_e) = 0 for e != d and
+#' Cov(lambda_d, Sbar_d) ~ g_d / (var_d * a_d), with
+#' g_d = kappa_YSS,d / N_d^2 - lambda_d * a_d * kappa_SSS,d / N_d.
+#' @noRd
+compute_dt_crossfit_variance <- function(data, fold_info, fold_lambda1,
+                                         fold_lambda0, w1 = NULL, w0 = NULL) {
+  obs <- data$observed
+  unobs <- data$unobserved
+  K <- fold_info$n_folds
+
+  Y1 <- obs$Y[obs$D == 1]; S1 <- obs$S1[obs$D == 1]
+  Y0 <- obs$Y[obs$D == 0]; S0 <- obs$S0[obs$D == 0]
+  S1_unobs <- unobs$S1[unobs$D == 1]
+  S0_unobs <- unobs$S0[unobs$D == 0]
+  m1 <- length(S1_unobs)
+  m0 <- length(S0_unobs)
+
+  Sigma_U <- diag(c(safe_var(S1_unobs, safe_var(S1)) / m1,
+                    safe_var(S0_unobs, safe_var(S0)) / m0))
+
+  k1 <- arm_third_moments(Y1, S1)
+  k0 <- arm_third_moments(Y0, S0)
+  v <- c(safe_var(S1), safe_var(S0))
+  cv <- c(stats::cov(Y1, S1), stats::cov(Y0, S0))
+  kYSS <- c(k1$kappa_YSS, k0$kappa_YSS)
+  kSSS <- c(k1$kappa_SSS, k0$kappa_SSS)
+
+  G <- zero_G(K)
+  for (k in seq_len(K)) {
+    N <- tuning_sizes(fold_info, k)
+    a <- 1 / c(m1, m0) + 1 / N
+    b <- v * a
+    ok <- N > 0 & is.finite(b) & b > 0
+    lam <- ifelse(ok, (cv / N) / b, 0)
+    g <- kYSS / N^2 - lam * a * kSSS / N
+    G[[k]] <- diag(ifelse(ok, g / b, 0))
+  }
+
+  crossfit_variance(obs, fold_info, fold_lambda1, fold_lambda0, Sigma_U, G,
+                    w1 = w1, w0 = w0)
+}
+
 
 #' Compute D-T variance using delta method
 #'
